@@ -24,6 +24,7 @@ export default async function verifyJWT(
       if (error) return res.status(403).json({ message: "Forbidden" });
       (req as CustomRequest).email = decoded.UserInfo.email;
       (req as CustomRequest).roles = decoded.UserInfo.roles;
+      next();
     }
   );
 }

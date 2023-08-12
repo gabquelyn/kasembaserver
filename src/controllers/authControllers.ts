@@ -1,19 +1,44 @@
 import User from "../models/user";
-import { Response, Request, NextFunction } from "express";
+import { Response, Request } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import expressAsyncHandler from "express-async-handler";
-
+import { validationResult } from "express-validator";
 // express async handler does the try catch and send errors to the custom error handler
 interface loginReq {
   email: string;
   password: string;
 }
+
+export const signup = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) res.status(400).json({ message: errors.array() });
+    const { roles } = req.params;
+    const { email, password } = req.body;
+    const existingUser = await User.findOne({ email }).lean().exec();
+    if (existingUser)
+      return res.status(409).json({ message: "User already exists" });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      roles,
+    });
+    if (newUser) {
+      res.status(201).json({ message: "Account created successfully!" });
+    } else {
+      res.status(409).json({ message: "Invalid data recieved" });
+    }
+  }
+);
+
 export const loginController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
+    const errors = validationResult(req.body);
+    if (!errors.isEmpty())
+      return res.status(400).json({ message: errors.array() });
     const { email, password }: loginReq = req.body;
-    if (!email || !password)
-      return res.status(400).json({ message: "All fields are required" });
     const foundUser = await User.findOne({ email }).exec();
     if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
     const passwordMatch = await bcrypt.compare(password, foundUser.password);
@@ -68,7 +93,7 @@ export const refreshController = expressAsyncHandler(
         const accessToken = jwt.sign(
           {
             UserInfo: {
-              email : foundUser.email,
+              email: foundUser.email,
               roles: foundUser.roles,
             },
           },
@@ -81,12 +106,9 @@ export const refreshController = expressAsyncHandler(
   }
 );
 
-export const logoutController = async (
-  req: Request,
-  res: Response
-) => {
+export const logoutController = async (req: Request, res: Response) => {
   const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204) //no content;
+  if (!cookies?.jwt) return res.sendStatus(204); //no content;
   res.clearCookie("jwt", {
     httpOnly: true, //only accessible through a web browser
     secure: true, //https
