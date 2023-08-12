@@ -5,20 +5,12 @@ import jwt from "jsonwebtoken";
 import expressAsyncHandler from "express-async-handler";
 import { validationResult } from "express-validator";
 // express async handler does the try catch and send errors to the custom error handler
-interface loginReq {
-  email: string;
-  password: string;
-}
-
 export const signupController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) res.status(400).json({ message: errors.array() });
+    if (!errors.isEmpty()) return res.status(400).json({ message: errors.array() });
     const { roles } = req.params;
     const { email, password } = req.body;
-    const existingUser = await User.findOne({ email }).lean().exec();
-    if (existingUser)
-      return res.status(409).json({ message: "User already exists" });
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       email,
@@ -35,10 +27,10 @@ export const signupController = expressAsyncHandler(
 
 export const loginController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const errors = validationResult(req.body);
+    const errors = validationResult(req);
     if (!errors.isEmpty())
       return res.status(400).json({ message: errors.array() });
-    const { email, password }: loginReq = req.body;
+    const { email, password } = req.body;
     const foundUser = await User.findOne({ email }).exec();
     if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
     const passwordMatch = await bcrypt.compare(password, foundUser.password);
@@ -53,7 +45,7 @@ export const loginController = expressAsyncHandler(
         },
       },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "30s" }
+      { expiresIn: "1h" }
     );
 
     // create the refresh token

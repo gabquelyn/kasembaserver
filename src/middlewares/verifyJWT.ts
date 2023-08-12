@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 interface CustomRequest extends Request {
-    email?: string;
-    roles?: string[];
-  }
+  email?: string;
+  roles?: string[];
+}
 
 export default async function verifyJWT(
   req: Request,
@@ -16,12 +16,15 @@ export default async function verifyJWT(
   if (!authValue?.startsWith("Bearer "))
     return res.status(401).json({ message: "Unauthorized" });
 
-  const token = authValue.split(" ")[0];
+  const token = authValue.split(" ")[1];
   jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET as string,
     (error: any, decoded: any) => {
-      if (error) return res.status(403).json({ message: "Forbidden" });
+      if (error) {
+        console.log(error)
+        return res.status(403).json({ message: "Forbidden" });
+      }
       (req as CustomRequest).email = decoded.UserInfo.email;
       (req as CustomRequest).roles = decoded.UserInfo.roles;
       next();

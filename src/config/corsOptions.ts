@@ -3,7 +3,7 @@ import { CorsOptions } from "cors";
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin as string)) {
+    if (allowedOrigins.includes(origin as string) || !origin) {
       callback(null, true); //first is error which is null and second allow wich is true
     } else {
       callback(new Error("Not allowed by cors"));
