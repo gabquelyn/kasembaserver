@@ -6,6 +6,7 @@ import {
   loginController,
   refreshController,
   logoutController,
+  signupController,
 } from "../controllers/authControllers";
 const router = Router();
 
@@ -20,18 +21,26 @@ router
     loginController
   );
 
-router.route("/new").post([
-  query("roles").notEmpty().escape().withMessage("No role selected"),
-  body("email").isEmail().withMessage("Enter a valid email address"),
-  body("password")
-    .isLength({ min: 8 })
-    .withMessage("Password must be of a minimum length of 8 characters"),
-  body("confirmPassword").custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Password mismatch");
-    }
-  }),
-]);
+router.route("/signup").post(
+  [
+    query("roles").custom((value, { req }) => {
+      const roles = ["inspector", "client"];
+      if (!roles.includes(value)) {
+        throw new Error("Not a valid role");
+      }
+    }),
+    body("email").isEmail().withMessage("Enter a valid email address"),
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("Password must be of a minimum length of 8 characters"),
+    body("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Password mismatch");
+      }
+    }),
+  ],
+  signupController
+);
 router.route("/refresh").get(verifyJWT, refreshController);
 
 router.route("/logout").post(logoutController);

@@ -10,7 +10,7 @@ interface loginReq {
   password: string;
 }
 
-export const signup = expressAsyncHandler(
+export const signupController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) res.status(400).json({ message: errors.array() });
