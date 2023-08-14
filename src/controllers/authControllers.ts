@@ -58,7 +58,7 @@ export const loginController = expressAsyncHandler(
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true, //only accessible through a web browser
-      secure: true, //https
+      secure: false, //will be set to https at production
       sameSite: "none", // cross site cookie
       maxAge: 7 * 24 * 60 * 60 * 1000, //
     });
@@ -92,7 +92,7 @@ export const refreshController = expressAsyncHandler(
           process.env.ACCESS_TOKEN_SECRET as string,
           { expiresIn: "30s" }
         );
-        res.json(accessToken);
+        res.json({accessToken});
       }
     );
   }
@@ -103,7 +103,7 @@ export const logoutController = async (req: Request, res: Response) => {
   if (!cookies?.jwt) return res.sendStatus(204); //no content;
   res.clearCookie("jwt", {
     httpOnly: true, //only accessible through a web browser
-    secure: true, //https
+    secure: false, //http for development only
     sameSite: "none", // cross site cookie
     maxAge: 7 * 24 * 60 * 60 * 1000, //
   });

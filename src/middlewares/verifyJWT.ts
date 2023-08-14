@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 interface CustomRequest extends Request {
   email?: string;
-  roles?: string[];
+  roles?: string;
 }
 
 export default async function verifyJWT(
