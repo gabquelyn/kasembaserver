@@ -24,10 +24,12 @@ router
 
 router.route("/signup").post(
   [
-    query("roles").custom((value, { req }) => {
-      const roles = ["inspector", "client"];
-      return roles.includes(value);
-    }).withMessage("Invalid roles"),
+    query("roles")
+      .custom((value, { req }) => {
+        const roles = ["inspector", "client", "administrator"];
+        return roles.includes(value);
+      })
+      .withMessage("Invalid roles"),
     body("email").isEmail().withMessage("Enter a valid email address"),
     body("email")
       .custom(async (value, { req }) => {

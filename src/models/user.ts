@@ -8,22 +8,40 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  roles:{
+  roles: {
     type: String,
-    default: "client"
+    default: "client",
   },
-  firstname: {
-    type: String,
-    required: false,
-  },
-  lastname: {
-    type: String,
-    required: false,
-  },
-  phone: {
-    type: String,
-    required: false,
+  profile: {
+    avatar: {
+      type: String,
+      required: false,
+    },
+    firstname: {
+      type: String,
+      required: false,
+    },
+    lastname: {
+      type: String,
+      required: false,
+    },
+    phone_number: {
+      type: String,
+      required: false,
+    },
+    country: {
+      type: String,
+      required: false,
+    },
+    zip_code: {
+      type: Number,
+      required: false,
+    },
+    city: {
+      type: String,
+      required: false,
+    },
   },
 });
 
-export default mongoose.model('User', userSchema) ;
+export default mongoose.model("User", userSchema);
