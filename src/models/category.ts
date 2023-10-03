@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const categorySchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema<ICat>(
   {
     name: {
       type: String,
@@ -16,10 +16,17 @@ const categorySchema = new mongoose.Schema(
         },
       },
     ],
+    cost: {
+      type: Number,
+      required: true,
+    },
+    plan: {
+      type: String,
+      require: true,
+      default: "basic",
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-export default mongoose.model("Category", categorySchema);
+export default mongoose.model<ICat>("Category", categorySchema);
