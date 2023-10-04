@@ -1,13 +1,14 @@
 import { Router } from "express";
 import verifyJWT from "../middlewares/verifyJWT";
 import onlyAdmin from "../middlewares/onlyInspectors";
+import { getUsersHandler } from "../controllers/usersControllers";
 import {
   getCategoriesController,
   editCategoryController,
   deleteCategoryController,
   createCategoryController,
 } from "../controllers/categoryControllers";
-import { body, query, param } from "express-validator";
+import { body } from "express-validator";
 
 const router = Router();
 router.use(verifyJWT, onlyAdmin);
@@ -16,12 +17,14 @@ router
   .get(getCategoriesController)
   .post(
     [
-      body("name").notEmpty().withMessage("Missing category name"),
-      body("cost").notEmpty().withMessage("Missing category cost"),
-      body("plan").notEmpty().withMessage("Missing category  plan"),
-      body("sub_categories").custom((value, { req }) => {
-        return Array.isArray(value);
-      }),
+      body("name").trim().notEmpty().withMessage("Missing category name"),
+      body("cost").trim().notEmpty().withMessage("Missing category cost"),
+      body("plan").trim().notEmpty().withMessage("Missing category  plan"),
+      body("sub_categories")
+        .custom((value, { req }) => {
+          return Array.isArray(value) && value.length !== 0;
+        })
+        .withMessage("Invalid sub-categories"),
     ],
     createCategoryController
   );
@@ -30,5 +33,7 @@ router
   .route("/category/:categoryId")
   .patch(editCategoryController)
   .delete(deleteCategoryController);
+
+router.route("/u").get(getUsersHandler);
 
 export default router;

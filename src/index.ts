@@ -9,6 +9,7 @@ import connectDB from "./config/dbConnect";
 import cookieParser from 'cookie-parser';
 import mongoose from "mongoose";
 import authRoute from './routes/authRoutes'
+import adminRoutes from './routes/adminRoutes'
 import { logEvents } from "./middlewares/logger";
 
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use('/auth', authRoute);
+app.use('/admin', adminRoutes)
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express and typescript server");
