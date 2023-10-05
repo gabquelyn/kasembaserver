@@ -14,9 +14,26 @@ export const getProfileController = expressAsyncHandler(
       .exec();
     if (!foundUser)
       return res.status(400).json({ message: "user does not exist" });
-    return res
-      .status(200)
-      .json({ message: { ...foundUser.profile, email: foundUser.email } });
+    const {
+      avatar,
+      firstname,
+      lastname,
+      phone_number,
+      country,
+      zip_code,
+      city,
+    } = foundUser;
+    return res.status(200).json({
+      message: {
+        avatar,
+        firstname,
+        lastname,
+        phone_number,
+        country,
+        zip_code,
+        city,
+      },
+    });
   }
 );
 
@@ -27,16 +44,15 @@ export const editProfileController = expressAsyncHandler(
     }).exec();
     const { firstname, lastname, phone_number, country, zip_code, city } =
       req.body;
-    if (!foundUser?.profile)
-      return res.status(400).json({ message: "USer not found" });
-
-    if (req.file) foundUser.profile.avatar = req.file?.path;
-    if (firstname) foundUser.profile.firstname = firstname;
-    if (lastname) foundUser.profile.lastname = lastname;
-    if (phone_number) foundUser.profile.phone_number = phone_number;
-    if (country) foundUser.profile.country = country;
-    if (zip_code) foundUser.profile.zip_code = zip_code;
-    if (city) foundUser.profile.city = city;
+    if (!foundUser) return res.status(404).json({ message: "User not found" });
+    if (req.file)
+      foundUser.avatar = `${req.file?.destination}/${req.file?.filename}`;
+    if (firstname) foundUser.firstname = firstname;
+    if (lastname) foundUser.lastname = lastname;
+    if (phone_number) foundUser.phone_number = phone_number;
+    if (country) foundUser.country = country;
+    if (zip_code) foundUser.zip_code = zip_code;
+    if (city) foundUser.city = city;
     await foundUser.save();
     return res.status(201).json({ message: "Updated status successfully!" });
   }

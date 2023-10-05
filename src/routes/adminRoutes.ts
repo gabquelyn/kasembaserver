@@ -1,6 +1,6 @@
 import { Router } from "express";
 import verifyJWT from "../middlewares/verifyJWT";
-import onlyAdmin from "../middlewares/onlyInspectors";
+import onlyAdmin from "../middlewares/onlyAdmin";
 import { getUsersHandler } from "../controllers/usersControllers";
 import {
   getCategoriesController,

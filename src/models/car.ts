@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-const carSchema = new mongoose.Schema(
+const carSchema = new mongoose.Schema<ICar>(
   {
-    owner: {
+    userId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
@@ -20,9 +20,9 @@ const carSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    plate_number: {
+    description: {
       type: String,
-      required: false,
+      required: true,
     },
     mode: {
       seller: {
@@ -43,4 +43,4 @@ const carSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Car", carSchema);
+export default mongoose.model<ICar>("Car", carSchema);

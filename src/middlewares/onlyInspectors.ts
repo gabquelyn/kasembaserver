@@ -10,7 +10,7 @@ export default async function onlyInspectors(
   next: NextFunction
 ) {
   if ((req as CustomRequest).roles !== "inspector") {
-    return res.status(403).json({ message: "unauthorized" });
+    return res.status(403).json({ message: "unauthorized, inspector only" });
   }
   next();
 }

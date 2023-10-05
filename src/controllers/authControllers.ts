@@ -7,7 +7,7 @@ import { validationResult } from "express-validator";
 import sendMail from "../utils/sendMail";
 import crypto from "crypto";
 import Token from "../models/token";
-import generateRandomToken from "../utils/generateOTP";
+
 // express async handler does the try catch and send errors to the custom error handler
 interface CustomRequest extends Request {
   email?: string;
@@ -38,7 +38,6 @@ export const signupController = expressAsyncHandler(
     });
 
     const url = `${process.env.BASE_URL}/auth/${newUser._id}/verify/${verificationToken.token}`;
-
     // send the verification url via email
     await sendMail(newUser.email, "Verify email", `<p>${url}</p>`);
     res
@@ -55,6 +54,7 @@ export const loginController = expressAsyncHandler(
     const { email, password } = req.body;
     const foundUser = await User.findOne({ email }).lean().exec();
     if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
+    console.log(foundUser);
     const passwordMatch = await bcrypt.compare(password, foundUser.password);
     if (!passwordMatch) return res.send(401).json({ message: "Unauthorized" });
 
@@ -70,10 +70,11 @@ export const loginController = expressAsyncHandler(
         });
 
         const url = `${process.env.BASE_URL}/auth/${foundUser._id}/verify/${verificationToken.token}`;
+
         await sendMail(foundUser.email, "Verify email", `<p>${url}</p>`);
       }
 
-      res
+      return res
         .status(400)
         .send({ message: "Email sent to your account please verify" });
     }
@@ -86,7 +87,7 @@ export const loginController = expressAsyncHandler(
           roles: foundUser.roles,
         },
       },
-      process.env.ACCESS_TOKEN_SECRET as string,
+      String(process.env.ACCESS_TOKEN_SECRET),
       { expiresIn: "1h" }
     );
 
@@ -171,7 +172,7 @@ export const updatePasswordController = expressAsyncHandler(
   }
 );
 
-export const verifyTokenHandler = expressAsyncHandler(
+export const verifyTokenController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const errors = validationResult(req);
     if (!errors.isEmpty())
@@ -212,7 +213,9 @@ export const forgotPasswordController = expressAsyncHandler(
 
     // send the verification url via email
     await sendMail(user.email, "Reset password", `<p>${url}</p>`);
-    return res.status(200).json({ message: "Recovery code sent to email" });
+    return res
+      .status(200)
+      .json({ message: "Recovery mail sent successfully!" });
   }
 );
 
@@ -229,7 +232,7 @@ export const resetPasswordController = expressAsyncHandler(
     const user = await User.findById(existingToken.userId).exec();
     const hashedPassword = await bcrypt.hash(password, 10);
     if (user) {
-      user.password === hashedPassword;
+      user.password = hashedPassword;
       await user.save();
     }
     await existingToken.deleteOne();

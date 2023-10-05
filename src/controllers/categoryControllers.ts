@@ -48,7 +48,7 @@ export const editCategoryController = expressAsyncHandler(
     await category.save();
     return res
       .status(200)
-      .json({ message: `Category of ${category} updated sucessfully` });
+      .json({ message: `Category of ${category._id} updated sucessfully` });
   }
 );
 

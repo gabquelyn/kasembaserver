@@ -11,7 +11,10 @@ interface ICat {
   plan: string;
 }
 
-type Profile = {
+interface IUser {
+  email: string;
+  password: string;
+  roles: "client" | "inspector" | "admin";
   avatar: string;
   firstname: string;
   lastname: string;
@@ -19,21 +22,28 @@ type Profile = {
   country: string;
   zip_code: number;
   city: string;
-};
-
-interface IUser {
-  email: string;
-  password: string;
-  roles: "client" | "inspector" | "admin";
-  profile: Profile;
   verified: boolean;
 }
 
 interface IToken {
   userId: String;
-  token: String;
+  token: string;
   expireAt: {
     default: Date;
     expires: number;
   };
+}
+
+interface ICar {
+  userId: String;
+  type: "new" | "used";
+  images: string[];
+  vin: string;
+  color: string;
+  description: string;
+  mode: {
+    seller: boolean,
+    currency: string,
+    cost: number
+  }
 }

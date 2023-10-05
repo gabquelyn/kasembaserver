@@ -6,12 +6,13 @@ import errorHandler from "./middlewares/errorHandler";
 import cors from "cors";
 import corsOptions from "./config/corsOptions";
 import connectDB from "./config/dbConnect";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import authRoute from './routes/authRoutes'
-import adminRoutes from './routes/adminRoutes'
+import authRoute from "./routes/authRoutes";
+import adminRoutes from "./routes/adminRoutes";
+import profileRoutes from "./routes/profileRoutes";
 import { logEvents } from "./middlewares/logger";
-
+import inspectionRoutes from "./routes/inspectionRoutes";
 
 dotenv.config();
 connectDB();
@@ -23,9 +24,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/", express.static(path.join(__dirname, "public")));
-app.use('/auth', authRoute);
-app.use('/admin', adminRoutes)
-
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/auth", authRoute);
+app.use("/admin", adminRoutes);
+app.use("/profile", profileRoutes);
+app.use("/inspection", inspectionRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Express and typescript server");
 });

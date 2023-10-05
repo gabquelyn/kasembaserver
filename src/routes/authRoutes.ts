@@ -10,6 +10,8 @@ import {
   signupController,
   updatePasswordController,
   forgotPasswordController,
+  verifyTokenController,
+  resetPasswordController
 } from "../controllers/authControllers";
 const router = Router();
 
@@ -66,10 +68,13 @@ router.route("/update").post(
 );
 router
   .route("/:userId/verify/:token")
-  .get([
-    param("userId").notEmpty(),
-    param("token").notEmpty().withMessage("Missing required params"),
-  ]);
+  .get(
+    [
+      param("userId").notEmpty(),
+      param("token").notEmpty().withMessage("Missing required params"),
+    ],
+    verifyTokenController
+  );
 
 router
   .route("/forgot")
@@ -87,6 +92,6 @@ router.route("/reset/:token").post([
       return value === req.body.password;
     })
     .withMessage("Passwords mismatch"),
-], );
+], resetPasswordController);
 
 export default router;

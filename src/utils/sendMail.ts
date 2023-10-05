@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import { logEvents } from "../middlewares/logger";
-import { v4 as uuid } from "uuid";
 export default async function sendMail(
   email: string,
   subject: string,
@@ -8,28 +7,25 @@ export default async function sendMail(
 ) {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.HOST,
+      host: process.env.SMTP_HOST,
       //   service: process.env.SERVICE,
-      port: Number(process.env.EMAIL_PORT),
-      //   secure: Boolean(process.env.SECURE),
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
       auth: {
-        user: process.env.USERNAME,
-        pass: process.env.PASSWORD,
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD,
       },
     });
 
     await transporter.sendMail({
-      from: process.env.USER,
+      from: process.env.SMTP_USER,
       to: email,
       subject: subject,
       html: html,
     });
     console.log("Email sent successfully!");
   } catch (err) {
-    logEvents(
-      `${uuid()}: ${new Date().toISOString()}\t${err}`,
-      "mailerErrLog.log"
-    );
+    logEvents(`${err}`, "mailerErrLog.log");
     console.log(err);
   }
 }

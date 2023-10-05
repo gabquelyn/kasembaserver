@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 const reportSchema = new mongoose.Schema(
   {
-    inspector: {
+    carId: {
       type: mongoose.Types.ObjectId,
-      ref: "User",
+      ref: "Car",
       required: true,
     },
     details: [

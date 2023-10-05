@@ -1,12 +1,24 @@
 import mongoose from "mongoose";
 const inspectionSchemma = new mongoose.Schema(
   {
-    car: {
+    userId: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
+    inspectorId: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+    carId: {
       type: mongoose.Types.ObjectId,
       ref: "Car",
       required: true,
+      unique: true,
     },
-    state: {
+    status: {
       type: String,
       required: true,
       default: "unapproved",
@@ -32,7 +44,7 @@ const inspectionSchemma = new mongoose.Schema(
     category: [
       { type: mongoose.Types.ObjectId, ref: "Category", required: true },
     ],
-    cost: {
+    price: {
       type: Number,
       required: true,
     },
