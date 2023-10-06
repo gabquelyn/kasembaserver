@@ -24,22 +24,41 @@ const carSchema = new mongoose.Schema<ICar>(
       type: String,
       required: true,
     },
-    mode: {
-      seller: {
-        type: Boolean,
-        required: true,
-      },
-      currency: {
-        type: Boolean,
-        required: true,
-        default: "USD",
-      },
-      cost: {
-        type: Number,
-        required: false,
-      },
+
+    sell: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
+    sell_type: {
+      type: String,
+      required: false,
+      default: "dealer",
+    },
+    currency: {
+      type: String,
+      required: true,
+      default: "USD",
+    },
+    cost: {
+      type: Number,
+      required: false,
+    },
+    showcase: [
+      {
+        day: {
+          type: String,
+        },
+        from: {
+          type: String,
+        },
+        to: {
+          type: String,
+        },
+      },
+    ],
   },
+
   { timestamps: true }
 );
 

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -47,6 +47,8 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       required: false,
     },
+    cars: [{ type: Schema.Types.ObjectId, ref: "Car" }],
+    reports: [{ type: Schema.Types.ObjectId, ref: "Report" }],
   },
   { timestamps: true }
 );

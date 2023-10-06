@@ -13,7 +13,8 @@ import adminRoutes from "./routes/adminRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import { logEvents } from "./middlewares/logger";
 import inspectionRoutes from "./routes/inspectionRoutes";
-
+import carRoutes from "./routes/carRoutes";
+import reportsRoutes from "./routes/reportsRoute";
 dotenv.config();
 connectDB();
 const app: Express = express();
@@ -28,7 +29,9 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/auth", authRoute);
 app.use("/admin", adminRoutes);
 app.use("/profile", profileRoutes);
+app.use("/car", carRoutes);
 app.use("/inspection", inspectionRoutes);
+app.use("/reports", reportsRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Express and typescript server");
 });

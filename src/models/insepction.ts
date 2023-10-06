@@ -7,10 +7,17 @@ const inspectionSchemma = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    inspectorId: {
+    reportId: {
+      type: mongoose.Types.ObjectId,
+      ref: "Report",
+      required: false,
+      unique: true
+    },
+    assigedTo: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: false,
+      unique: true
     },
     carId: {
       type: mongoose.Types.ObjectId,

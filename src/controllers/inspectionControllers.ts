@@ -4,44 +4,47 @@ import Inspection from "../models/insepction";
 import Car from "../models/car";
 import User from "../models/user";
 import Category from "../models/category";
+import { validationResult } from "express-validator";
 
 interface CustomRequest extends Request {
   roles?: string;
-  email: string;
+  email?: string;
+  userId?: string;
 }
 
 export const getInspectionController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const user = await User.findOne({
-      email: (req as CustomRequest).email,
-    })
-      .lean()
-      .exec();
+    const userId = (req as CustomRequest).userId;
     if ((req as CustomRequest).roles === "administrator") {
       const inspections = await Inspection.find({}).lean().exec();
       return res.status(200).json({ message: inspections });
-    } else if ((req as CustomRequest).roles === "inspector") {
-      const inspections = await Inspection.find({ inspectorId: user?._id })
-        .lean()
-        .exec();
-      return res.status(200).json({ message: inspections });
-    } else {
-      const inspections = await Inspection.find({ userId: user?._id })
+    }
+    if ((req as CustomRequest).roles === "inspector") {
+      const inspections = await Inspection.find({
+        inspectorId: userId,
+      })
         .lean()
         .exec();
       return res.status(200).json({ message: inspections });
     }
+
+    const inspections = await Inspection.find({ userId }).lean().exec();
+    return res.status(200).json({ message: inspections });
   }
 );
 
 export const createInspectionController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json({ message: errors.array() });
     const {
       type,
       color,
       vin,
       description,
-      seller,
+      sell,
+      sell_type,
       currency,
       cost,
       country,
@@ -49,24 +52,11 @@ export const createInspectionController = expressAsyncHandler(
       address,
       zip_code,
       category,
-    }: {
-      type: string;
-      color: string;
-      vin: string;
-      description: string;
-      seller: string;
-      currency: string;
-      cost: string;
-      country: string;
-      city: string;
-      address: string;
-      zip_code: number;
-      category: string[];
-    } = req.body;
+      showcase,
+    }: InspectionFormData = req.body;
 
-    const user = await User.findOne({
-      email: (req as CustomRequest).email,
-    }).exec();
+    const userId = (req as CustomRequest).userId;
+    const user = await User.findById(userId).exec();
     if (!user) return res.status(200).json({ message: "user doesn't exist!" });
     const imageArray: string[] = [];
 
@@ -81,17 +71,17 @@ export const createInspectionController = expressAsyncHandler(
     }
 
     const newCar = await Car.create({
-      userId: user._id,
+      userId,
       type,
       images: imageArray,
       vin,
       color,
       description,
-      mode: {
-        seller,
-        cost,
-        currency,
-      },
+      sell,
+      sell_type,
+      cost,
+      currency,
+      showcase,
     });
 
     // calculate the total price of the inspection
@@ -102,7 +92,7 @@ export const createInspectionController = expressAsyncHandler(
     });
 
     const newInspection = await Inspection.create({
-      userId: user._id,
+      userId,
       carId: newCar._id,
       location: {
         country,

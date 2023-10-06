@@ -85,6 +85,7 @@ export const loginController = expressAsyncHandler(
         UserInfo: {
           email: foundUser.email,
           roles: foundUser.roles,
+          userId: foundUser._id
         },
       },
       String(process.env.ACCESS_TOKEN_SECRET),
@@ -130,6 +131,7 @@ export const refreshController = expressAsyncHandler(
             UserInfo: {
               email: foundUser.email,
               roles: foundUser.roles,
+              userId: foundUser._id
             },
           },
           process.env.ACCESS_TOKEN_SECRET as string,

@@ -23,6 +23,7 @@ interface IUser {
   zip_code: number;
   city: string;
   verified: boolean;
+  cars: ObjectId[]
 }
 
 interface IToken {
@@ -41,9 +42,17 @@ interface ICar {
   vin: string;
   color: string;
   description: string;
-  mode: {
-    seller: boolean,
-    currency: string,
-    cost: number
-  }
+  sell: boolean;
+  sell_type: string;
+  currency: string;
+  cost: number;
+  showcase: [{ day: string; from: string; to: string }];
+}
+
+interface InspectionFormData extends ICar {
+  country: string;
+  city: string;
+  address: string;
+  zip_code: string;
+  category: string[];
 }

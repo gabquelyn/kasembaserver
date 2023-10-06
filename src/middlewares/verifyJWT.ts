@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 interface CustomRequest extends Request {
   email?: string;
   roles?: string;
+  userId: string;
 }
 
 export default async function verifyJWT(
@@ -22,11 +23,12 @@ export default async function verifyJWT(
     process.env.ACCESS_TOKEN_SECRET as string,
     (error: any, decoded: any) => {
       if (error) {
-        console.log(error)
+        console.log(error);
         return res.status(403).json({ message: "Forbidden" });
       }
       (req as CustomRequest).email = decoded.UserInfo.email;
       (req as CustomRequest).roles = decoded.UserInfo.roles;
+      (req as CustomRequest).userId = decoded.UserInfo.userId;
       next();
     }
   );
