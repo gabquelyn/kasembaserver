@@ -54,7 +54,6 @@ export const loginController = expressAsyncHandler(
     const { email, password } = req.body;
     const foundUser = await User.findOne({ email }).lean().exec();
     if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
-    console.log(foundUser);
     const passwordMatch = await bcrypt.compare(password, foundUser.password);
     if (!passwordMatch) return res.send(401).json({ message: "Unauthorized" });
 

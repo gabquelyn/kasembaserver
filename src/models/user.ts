@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const userSchema = new mongoose.Schema<IUser>(
+const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -49,8 +49,9 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     cars: [{ type: Schema.Types.ObjectId, ref: "Car" }],
     reports: [{ type: Schema.Types.ObjectId, ref: "Report" }],
+    inspections: [{ type: Schema.Types.ObjectId, ref: "Inspection" }],
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IUser>("User", userSchema);
+export default mongoose.model("User", userSchema);

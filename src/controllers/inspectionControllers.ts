@@ -3,9 +3,7 @@ import expressAsyncHandler from "express-async-handler";
 import Inspection from "../models/insepction";
 import Car from "../models/car";
 import User from "../models/user";
-import Category from "../models/category";
-import { validationResult } from "express-validator";
-
+import Report from "../models/report";
 interface CustomRequest extends Request {
   roles?: string;
   email?: string;
@@ -27,7 +25,6 @@ export const getInspectionController = expressAsyncHandler(
         .exec();
       return res.status(200).json({ message: inspections });
     }
-
     const inspections = await Inspection.find({ userId }).lean().exec();
     return res.status(200).json({ message: inspections });
   }
@@ -35,9 +32,6 @@ export const getInspectionController = expressAsyncHandler(
 
 export const createInspectionController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ message: errors.array() });
     const {
       type,
       color,
@@ -53,7 +47,22 @@ export const createInspectionController = expressAsyncHandler(
       zip_code,
       category,
       showcase,
-    }: InspectionFormData = req.body;
+      price,
+    } = req.body;
+    const selectedCategories: string[] = JSON.parse(category);
+    if (
+      !price ||
+      !country ||
+      !city ||
+      !address ||
+      !zip_code ||
+      selectedCategories.length === 0 ||
+      !vin ||
+      !color ||
+      !description
+    ) {
+      return res.status(400).json({ message: "Missing required parameters" });
+    }
 
     const userId = (req as CustomRequest).userId;
     const user = await User.findById(userId).exec();
@@ -84,13 +93,6 @@ export const createInspectionController = expressAsyncHandler(
       showcase,
     });
 
-    // calculate the total price of the inspection
-    let totalPrice = 0;
-    category.forEach(async (cat) => {
-      const existingCategory = await Category.findById(cat).lean().exec();
-      if (existingCategory) totalPrice += existingCategory?.cost;
-    });
-
     const newInspection = await Inspection.create({
       userId,
       carId: newCar._id,
@@ -100,8 +102,8 @@ export const createInspectionController = expressAsyncHandler(
         address,
         zip_code,
       },
-      category,
-      price: totalPrice,
+      category: selectedCategories,
+      price,
     });
 
     return res
@@ -109,3 +111,5 @@ export const createInspectionController = expressAsyncHandler(
       .json({ message: `inspection created succesfully ${newInspection._id}` });
   }
 );
+
+

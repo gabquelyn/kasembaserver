@@ -36,7 +36,7 @@ export const postCarsController = expressAsyncHandler(
       sell_type,
       cost,
       showcase,
-    }: Partial<InspectionFormData> = req.body;
+    } = req.body;
 
     if (req.files) {
       for (let i = 0; i < +req.files?.length; i++) {

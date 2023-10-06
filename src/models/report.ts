@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 const reportSchema = new mongoose.Schema(
   {
-    inspectorId: {
+    inspectionId: {
       type: mongoose.Types.ObjectId,
-      ref: "User",
+      ref: "Inspection",
       required: true,
+      unique: true
     },
     details: [
       {

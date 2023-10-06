@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const categorySchema = new mongoose.Schema<ICat>(
+const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -29,4 +29,4 @@ const categorySchema = new mongoose.Schema<ICat>(
   { timestamps: true }
 );
 
-export default mongoose.model<ICat>("Category", categorySchema);
+export default mongoose.model("Category", categorySchema);

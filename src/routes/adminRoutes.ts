@@ -2,6 +2,7 @@ import { Router } from "express";
 import verifyJWT from "../middlewares/verifyJWT";
 import onlyAdmin from "../middlewares/onlyAdmin";
 import { getUsersHandler } from "../controllers/usersControllers";
+import { assignController } from "../controllers/adminOnlyControllers";
 import {
   getCategoriesController,
   editCategoryController,
@@ -35,5 +36,5 @@ router
   .delete(deleteCategoryController);
 
 router.route("/u").get(getUsersHandler);
-
+router.route("/assign/:inspectorId/:inspectionId").post(assignController);
 export default router;

@@ -5,19 +5,6 @@ const inspectionSchemma = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
-    },
-    reportId: {
-      type: mongoose.Types.ObjectId,
-      ref: "Report",
-      required: false,
-      unique: true
-    },
-    assigedTo: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-      required: false,
-      unique: true
     },
     carId: {
       type: mongoose.Types.ObjectId,
@@ -27,7 +14,6 @@ const inspectionSchemma = new mongoose.Schema(
     },
     status: {
       type: String,
-      required: true,
       default: "unapproved",
     },
     location: {
@@ -57,7 +43,6 @@ const inspectionSchemma = new mongoose.Schema(
     },
     paid: {
       type: Boolean,
-      required: true,
       default: false,
     },
   },

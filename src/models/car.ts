@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const carSchema = new mongoose.Schema<ICar>(
+const carSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Types.ObjectId,
@@ -27,17 +27,14 @@ const carSchema = new mongoose.Schema<ICar>(
 
     sell: {
       type: Boolean,
-      required: true,
       default: false,
     },
     sell_type: {
       type: String,
-      required: false,
       default: "dealer",
     },
     currency: {
       type: String,
-      required: true,
       default: "USD",
     },
     cost: {
@@ -62,4 +59,4 @@ const carSchema = new mongoose.Schema<ICar>(
   { timestamps: true }
 );
 
-export default mongoose.model<ICar>("Car", carSchema);
+export default mongoose.model("Car", carSchema);
