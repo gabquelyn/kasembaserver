@@ -16,6 +16,10 @@ const inspectionSchemma = new mongoose.Schema(
       type: String,
       default: "unapproved",
     },
+    distance: {
+      type: Number,
+      required: true,
+    },
     location: {
       country: {
         type: String,

@@ -14,7 +14,7 @@ const errorHandler = (
   const status = res.statusCode || 500;
   res.status(status);
   res.json({ message: err.message });
-  
+  return res;
 };
 
 export default errorHandler;

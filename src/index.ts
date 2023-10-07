@@ -12,9 +12,12 @@ import authRoute from "./routes/authRoutes";
 import adminRoutes from "./routes/adminRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import { logEvents } from "./middlewares/logger";
-import inspectionRoutes from "./routes/inspectionRoutes";
+import inspectionsRoutes from "./routes/inspectionRoutes";
 import carRoutes from "./routes/carRoutes";
 import reportsRoutes from "./routes/reportsRoute";
+import inspectorRoutes from "./routes/inspectorRoutes";
+import { checkDistance } from "./utils/findLocation";
+import axios from "axios";
 dotenv.config();
 connectDB();
 const app: Express = express();
@@ -29,11 +32,27 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/auth", authRoute);
 app.use("/admin", adminRoutes);
 app.use("/profile", profileRoutes);
+app.use("/inspector", inspectorRoutes);
 app.use("/car", carRoutes);
-app.use("/inspection", inspectionRoutes);
+app.use("/inspection", inspectionsRoutes);
 app.use("/reports", reportsRoutes);
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express and typescript server");
+
+// trying the distance calculation
+app.get("/", async (req: Request, res: Response) => {
+  try {
+    const sourceRes = await axios.get(
+      `https://api.geocod.io/v1.7/geocode?postal_code=80202&api_key=${process.env.GEOCODIO_API_KEY}`
+    );
+    if (sourceRes.data.results.length > 0) {
+      const distance = await checkDistance(
+        99950,
+        sourceRes.data.results[0].location
+      );
+      return res.status(200).json({ message: distance });
+    }
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.use(errorHandler);
