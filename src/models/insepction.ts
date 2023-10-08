@@ -14,7 +14,7 @@ const inspectionSchemma = new mongoose.Schema(
     },
     status: {
       type: String,
-      default: "unapproved",
+      default: "unacknowledged",
     },
     distance: {
       type: Number,

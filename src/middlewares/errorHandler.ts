@@ -11,10 +11,7 @@ const errorHandler = (
     "errorLog.log"
   );
   console.log(err.stack);
-  const status = res.statusCode || 500;
-  res.status(status);
-  res.json({ message: err.message });
-  return res;
+  return res.status(500).json({ error: err.stack });
 };
 
 export default errorHandler;

@@ -52,19 +52,6 @@ export const createInspectionController = expressAsyncHandler(
       price,
     } = req.body;
     const selectedCategories: string[] = JSON.parse(category);
-    if (
-      !price ||
-      !country ||
-      !city ||
-      !address ||
-      !zip_code ||
-      selectedCategories.length === 0 ||
-      !vin ||
-      !color ||
-      !description
-    ) {
-      return res.status(400).json({ message: "Missing required parameters" });
-    }
 
     // check for the user existence first
     const userId = (req as CustomRequest).userId;

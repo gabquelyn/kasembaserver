@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import mongoose from "mongoose";
+import { Types } from "mongoose";
 import Inspection from "../models/insepction";
 import User from "../models/user";
 interface CustomRequest extends Request {
@@ -14,11 +14,16 @@ export const acknowledgeInspectionController = expressAsyncHandler(
     const inspection = await Inspection.findById(inspectionId).exec();
     if (!inspection)
       return res.status(404).json({ message: "Inspection does not exist" });
-    const inspectionObjectId = new mongoose.Types.ObjectId(inspectionId);
+    const inspectionObjectId: Types.ObjectId = new Types.ObjectId(inspectionId);
     const inspector = await User.findById((req as CustomRequest).userId)
       .lean()
       .exec();
-    if (!inspector?.inspections.includes(inspectionObjectId))
+
+    const belongsto = inspector?.inspections.some((inspId) =>
+      inspId.equals(inspectionObjectId)
+    );
+
+    if (!belongsto)
       return res
         .status(400)
         .json({ message: "Cannot interact with inspection" });
