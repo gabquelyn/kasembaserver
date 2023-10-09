@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 const imageUpload = multer({
   storage: diskStorage({
     destination: function (req, file, cb) {
-      cb(null, "images");
+      cb(null, "dist/images");
     },
     filename: function (req, file, cb) {
       cb(null, uuid() + "-" + file.originalname);

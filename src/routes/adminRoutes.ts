@@ -37,4 +37,5 @@ router
 
 router.route("/u").get(getUsersHandler);
 router.route("/assign/:inspectorId/:inspectionId").post(assignController);
+router.route('/publish/:reportId')
 export default router;

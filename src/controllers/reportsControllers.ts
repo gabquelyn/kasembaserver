@@ -4,6 +4,7 @@ import Report from "../models/report";
 import User from "../models/user";
 import Insepction from "../models/insepction";
 import { Types } from "mongoose";
+import Category from "../models/category";
 
 interface CustomRequest extends Request {
   roles?: string;
@@ -30,23 +31,55 @@ export const getReportsController = expressAsyncHandler(
 export const createReportsController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const inspectorId = (req as CustomRequest).userId;
+
     const { inspectionId } = req.params;
     const inspection = await Insepction.findById(inspectionId).exec();
     if (!inspection)
       return res.status(404).json({ message: "Inspection not found" });
     const inspectionObjectId: Types.ObjectId = new Types.ObjectId(inspectionId);
     const inspector = await User.findById(inspectorId).exec();
+    if (!inspector)
+      return res.status(404).json({ message: "Inspector not found" });
     const belongsto = inspector?.inspections.some((inspId) =>
       inspId.equals(inspectionObjectId)
     );
+
     if (!belongsto)
       return res
         .status(400)
         .json({ message: "Cannot interact with inspection" });
 
-    // save the reports and remove the inspection and mark the inspection as completed
     const { details } = req.body;
-    if (!Array.isArray(details))
-      return res.status(400).json("Invalid data recieved");
+    const parsedDetails: {
+      name: string;
+      condition: string;
+      position?: string;
+    }[] = JSON.parse(details);
+
+    const fileFields = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
+
+    const formatedDetails = parsedDetails.map((detail) => {
+      return {
+        ...detail,
+        image: `${fileFields[detail.name][0]?.destination}/${
+          fileFields[detail.name][0].filename
+        }`,
+      };
+    });
+
+    const newReport = await Report.create({
+      cost: 0.6 * inspection.price,
+      inspectorId,
+      inspectionId,
+      details: formatedDetails,
+    });
+
+    inspector.reports.push(newReport._id);
+    await inspector.save();
+    return res.status(200).json({
+      message: `New report created ${newReport._id} awaiting to be published`,
+    });
   }
 );

@@ -20,12 +20,8 @@ export const getInspectionController = expressAsyncHandler(
       return res.status(200).json({ message: inspections });
     }
     if ((req as CustomRequest).roles === "inspector") {
-      const inspections = await Inspection.find({
-        inspectorId: userId,
-      })
-        .lean()
-        .exec();
-      return res.status(200).json({ message: inspections });
+      const inspector = await User.findById(userId).lean().exec();
+      return res.status(200).json({ message: inspector?.inspections });
     }
     const inspections = await Inspection.find({ userId }).lean().exec();
     return res.status(200).json({ message: inspections });

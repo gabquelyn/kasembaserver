@@ -7,6 +7,19 @@ const reportSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    inspectorId: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    status: {
+      type: String,
+      default: "unpublished",
+    },
+    cost: {
+      type: Number,
+      required: true,
+    },
     details: [
       {
         name: {
@@ -16,6 +29,10 @@ const reportSchema = new mongoose.Schema(
         condition: {
           type: String,
           required: true,
+        },
+        position: {
+          type: String,
+          required: false,
         },
         image: {
           type: String,

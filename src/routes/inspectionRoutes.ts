@@ -22,7 +22,7 @@ router
         selectedCategories,
         vin,
         color,
-        description,
+        description
       } = req.body;
       if (
         !price ||

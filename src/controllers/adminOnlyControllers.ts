@@ -4,7 +4,6 @@ import { Request, Response } from "express";
 import Inspection from "../models/insepction";
 import Report from "../models/report";
 import User from "../models/user";
-
 export const assignController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { inspectorId, inspectionId } = req.params;
@@ -29,10 +28,26 @@ export const assignController = expressAsyncHandler(
       });
     inspector.inspections.push(mongoObject);
     await inspector.save();
-    res
-      .status(200)
-      .json({
-        message: `assigned inspection of id ${inspectionId} to ${inspector.firstname}`,
-      });
+    res.status(200).json({
+      message: `assigned inspection of id ${inspectionId} to ${inspector.firstname}`,
+    });
+  }
+);
+
+export const publishReportsController = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { reportId } = req.params;
+    const report = await Report.findById(reportId).exec();
+    if (!report) return res.status(404).json({ message: "report not found!" });
+    report.status = "published";
+    await report.save();
+
+    const inspector = await User.findById(report.inspectorId).exec();
+    if (inspector && inspector.roles === "inspector") {
+      inspector.balance += report.cost;
+      await inspector.save();
+    }
+    // send mail to client later!
+    return res.status(200).json({ message: "Report published successfully!" });
   }
 );

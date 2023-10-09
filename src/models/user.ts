@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       required: false,
     },
+    balance: {
+      type: Number,
+      default: 0,
+    },
     city: {
       type: String,
       required: false,
