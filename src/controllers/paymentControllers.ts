@@ -15,8 +15,8 @@ export const payController = expressAsyncHandler(
     const inspection = await Inspection.findById(inspectionId).exec();
     if (!inspection)
       return res.status(400).json({ message: "Inspection not found!" });
-    if (inspection.paid)
-      return res.status(400).json({ message: "Inspection already paid for" });
+    // if (inspection.paid)
+    //   return res.status(400).json({ message: "Inspection already paid for" });
 
     const line_items = await Promise.all(
       inspection.category.map(async (id) => {
@@ -46,6 +46,10 @@ export const payController = expressAsyncHandler(
       success_url: `${process.env.FRONTEND_URL}/confirmation`,
       cancel_url: `${process.env.FRONTEND_URL}/dashboard`,
     });
+
+    // update the paid price
+    inspection.price = session.amount_total! / 100
+    await inspection.save();
 
     // check if any session existed before
     const previousSession = await Session.findOne({ inspectionId }).exec();

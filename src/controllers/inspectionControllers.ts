@@ -45,10 +45,8 @@ export const createInspectionController = expressAsyncHandler(
       zip_code,
       category,
       showcase,
-      price,
     } = req.body;
     const selectedCategories: string[] = JSON.parse(category);
-
     // check for the user existence first
     const userId = (req as CustomRequest).userId;
     const user = await User.findById(userId).exec();
@@ -135,7 +133,6 @@ export const createInspectionController = expressAsyncHandler(
         zip_code,
       },
       category: selectedCategories,
-      price,
       distance: _distance,
     });
 

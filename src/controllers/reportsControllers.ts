@@ -36,6 +36,8 @@ export const createReportsController = expressAsyncHandler(
     const inspection = await Insepction.findById(inspectionId).exec();
     if (!inspection)
       return res.status(404).json({ message: "Inspection not found" });
+    if (!inspection.paid)
+      res.status(400).json({ message: "Inspection not paid for" });
     const inspectionObjectId: Types.ObjectId = new Types.ObjectId(inspectionId);
     const inspector = await User.findById(inspectorId).exec();
     if (!inspector)
@@ -70,7 +72,6 @@ export const createReportsController = expressAsyncHandler(
     });
 
     const newReport = await Report.create({
-      cost: 0.6 * inspection.price,
       inspectorId,
       inspectionId,
       details: formatedDetails,

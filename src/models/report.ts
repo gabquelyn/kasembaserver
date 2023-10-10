@@ -16,10 +16,6 @@ const reportSchema = new mongoose.Schema(
       type: String,
       default: "unpublished",
     },
-    cost: {
-      type: Number,
-      required: true,
-    },
     details: [
       {
         name: {

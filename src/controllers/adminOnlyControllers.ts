@@ -42,9 +42,14 @@ export const publishReportsController = expressAsyncHandler(
     report.status = "published";
     await report.save();
 
+    const inspection = await Inspection.findById(report.inspectionId)
+      .lean()
+      .exec();
+    if (!inspection)
+      return res.status(400).json({ message: "Inspection does not exist" });
     const inspector = await User.findById(report.inspectorId).exec();
     if (inspector && inspector.roles === "inspector") {
-      inspector.balance += report.cost;
+      inspector.balance += inspection?.price;
       await inspector.save();
     }
     // send mail to client later!
