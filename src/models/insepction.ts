@@ -54,3 +54,5 @@ const inspectionSchemma = new mongoose.Schema(
 );
 
 export default mongoose.model("Inspection", inspectionSchemma);
+
+// populate the category to calculate the total price

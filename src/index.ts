@@ -17,6 +17,7 @@ import carRoutes from "./routes/carRoutes";
 import reportsRoutes from "./routes/reportsRoute";
 import inspectorRoutes from "./routes/inspectorRoutes";
 import { checkDistance } from "./utils/findLocation";
+import paymentRoutes from "./routes/paymentRoute";
 import axios from "axios";
 dotenv.config();
 connectDB();
@@ -36,6 +37,7 @@ app.use("/inspector", inspectorRoutes);
 app.use("/car", carRoutes);
 app.use("/inspection", inspectionsRoutes);
 app.use("/reports", reportsRoutes);
+app.use("/pay", paymentRoutes);
 
 // trying the distance calculation
 app.get("/", async (req: Request, res: Response) => {
