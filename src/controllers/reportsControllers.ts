@@ -4,7 +4,6 @@ import Report from "../models/report";
 import User from "../models/user";
 import Insepction from "../models/insepction";
 import { Types } from "mongoose";
-import Category from "../models/category";
 
 interface CustomRequest extends Request {
   roles?: string;

@@ -1,4 +1,4 @@
 const allowedOrigins = [
-    "https://languvi.com"
+    "http://localhost:3000"
 ]
 export default allowedOrigins;

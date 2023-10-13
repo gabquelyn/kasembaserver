@@ -19,13 +19,17 @@ export const signupController = expressAsyncHandler(
     const errors = validationResult(req);
     if (!errors.isEmpty())
       return res.status(400).json({ message: errors.array() });
-    const { roles } = req.params;
-    const { email, password } = req.body;
+    const { email, password, roles } = req.body;
+
+    const existing = await User.findOne({ email }).lean().exec();
+    if (existing)
+      return res.status(409).json({ message: "Email already in use" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       email,
       password: hashedPassword,
-      roles,
+      roles: roles ? "inspector" : "client",
     });
 
     if (!newUser)
@@ -55,7 +59,8 @@ export const loginController = expressAsyncHandler(
     const foundUser = await User.findOne({ email }).lean().exec();
     if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
     const passwordMatch = await bcrypt.compare(password, foundUser.password);
-    if (!passwordMatch) return res.send(401).json({ message: "Unauthorized" });
+    if (!passwordMatch)
+      return res.status(401).json({ message: "Unauthorized" });
 
     if (!foundUser.verified) {
       const existingToken = await Token.findOne({
@@ -75,7 +80,7 @@ export const loginController = expressAsyncHandler(
 
       return res
         .status(400)
-        .send({ message: "Email sent to your account please verify" });
+        .json({ message: "Email sent to your account please verify" });
     }
 
     // create the access token
@@ -84,7 +89,7 @@ export const loginController = expressAsyncHandler(
         UserInfo: {
           email: foundUser.email,
           roles: foundUser.roles,
-          userId: foundUser._id
+          userId: foundUser._id,
         },
       },
       String(process.env.ACCESS_TOKEN_SECRET),
@@ -106,7 +111,7 @@ export const loginController = expressAsyncHandler(
       maxAge: 7 * 24 * 60 * 60 * 1000, //
     });
 
-    return res.json({ accessToken });
+    return res.json({ accessToken, roles: foundUser.roles });
   }
 );
 
@@ -130,13 +135,13 @@ export const refreshController = expressAsyncHandler(
             UserInfo: {
               email: foundUser.email,
               roles: foundUser.roles,
-              userId: foundUser._id
+              userId: foundUser._id,
             },
           },
           process.env.ACCESS_TOKEN_SECRET as string,
-          { expiresIn: "30s" }
+          { expiresIn: "1h" }
         );
-        res.json({ accessToken });
+        res.json({ accessToken, roles: foundUser.roles });
       }
     );
   }

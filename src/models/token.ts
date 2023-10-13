@@ -10,11 +10,12 @@ const tokenSchema = new Schema({
     type: String,
     required: true,
   },
-  expireAt: {
+  createdAt: {
     type: Date,
-    default: Date.now(),
-    expires: 3600,
+    default: Date.now,
   },
 });
+
+tokenSchema.index({ createdAt: 1 }, { expireAfterSeconds: 3600 });
 
 export default model("Token", tokenSchema);
