@@ -14,8 +14,6 @@ router
   .post(
     (req: Request, res: Response, next: NextFunction) => {
       const {
-        price,
-        country,
         city,
         address,
         zip_code,
@@ -25,8 +23,6 @@ router
         description
       } = req.body;
       if (
-        !price ||
-        !country ||
         !city ||
         !address ||
         !zip_code ||

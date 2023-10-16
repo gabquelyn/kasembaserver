@@ -21,10 +21,6 @@ const inspectionSchemma = new mongoose.Schema(
       required: true,
     },
     location: {
-      country: {
-        type: String,
-        required: true,
-      },
       city: {
         type: String,
         required: true,

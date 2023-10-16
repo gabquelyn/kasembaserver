@@ -39,7 +39,6 @@ export const createInspectionController = expressAsyncHandler(
       sell_type,
       currency,
       cost,
-      country,
       city,
       address,
       zip_code,
@@ -127,7 +126,6 @@ export const createInspectionController = expressAsyncHandler(
       userId,
       carId: newCar._id,
       location: {
-        country,
         city,
         address,
         zip_code,
