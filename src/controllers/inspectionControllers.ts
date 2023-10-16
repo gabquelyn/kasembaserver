@@ -17,14 +17,14 @@ export const getInspectionController = expressAsyncHandler(
     const userId = (req as CustomRequest).userId;
     if ((req as CustomRequest).roles === "administrator") {
       const inspections = await Inspection.find({}).lean().exec();
-      return res.status(200).json({ message: inspections });
+      return res.status(200).json({ ...inspections });
     }
     if ((req as CustomRequest).roles === "inspector") {
       const inspector = await User.findById(userId).lean().exec();
-      return res.status(200).json({ message: inspector?.inspections });
+      return res.status(200).json({ ...inspector?.inspections });
     }
     const inspections = await Inspection.find({ userId }).lean().exec();
-    return res.status(200).json({ message: inspections });
+    return res.status(200).json({ ...inspections });
   }
 );
 

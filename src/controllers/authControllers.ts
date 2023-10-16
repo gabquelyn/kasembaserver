@@ -104,12 +104,7 @@ export const loginController = expressAsyncHandler(
       { expiresIn: "1d" }
     );
 
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true, //only accessible through a web browser
-      secure: false, //will be set to https at production
-      sameSite: "none", // cross site cookie
-      maxAge: 7 * 24 * 60 * 60 * 1000, //
-    });
+    res.cookie("jwt", refreshToken);
 
     return res.json({ accessToken, roles: foundUser.roles });
   }

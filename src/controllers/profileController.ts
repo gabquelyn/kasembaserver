@@ -22,19 +22,17 @@ export const getProfileController = expressAsyncHandler(
       country,
       zip_code,
       city,
-      email
+      email,
     } = foundUser;
     return res.status(200).json({
-      message: {
-        email,
-        avatar,
-        firstname,
-        lastname,
-        phone_number,
-        country,
-        zip_code,
-        city,
-      },
+      email,
+      avatar,
+      firstname,
+      lastname,
+      phone_number,
+      country,
+      zip_code,
+      city,
     });
   }
 );
