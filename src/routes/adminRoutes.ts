@@ -12,11 +12,12 @@ import {
 import { body } from "express-validator";
 
 const router = Router();
-router.use(verifyJWT, onlyAdmin);
+router.use(verifyJWT);
 router
   .route("/category")
   .get(getCategoriesController)
   .post(
+    onlyAdmin,
     [
       body("name").trim().notEmpty().withMessage("Missing category name"),
       body("cost").trim().notEmpty().withMessage("Missing category cost"),
@@ -37,5 +38,5 @@ router
 
 router.route("/u").get(getUsersHandler);
 router.route("/assign/:inspectorId/:inspectionId").post(assignController);
-router.route('/publish/:reportId')
+router.route("/publish/:reportId");
 export default router;

@@ -6,7 +6,7 @@ import { validationResult } from "express-validator";
 export const getCategoriesController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const all_categories = await Category.find({}).lean().exec();
-    res.status(200).json({ message: all_categories });
+    res.status(200).json({ ...all_categories });
   }
 );
 
