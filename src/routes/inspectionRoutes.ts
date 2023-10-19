@@ -11,32 +11,6 @@ router.use(verifyJWT);
 router
   .route("/")
   .get(getInspectionController)
-  .post(
-    (req: Request, res: Response, next: NextFunction) => {
-      const {
-        city,
-        address,
-        zip_code,
-        selectedCategories,
-        vin,
-        color,
-        description
-      } = req.body;
-      if (
-        !city ||
-        !address ||
-        !zip_code ||
-        selectedCategories.length === 0 ||
-        !vin ||
-        !color ||
-        !description
-      ) {
-        return res.status(400).json({ message: "Missing required parameters" });
-      }
-      next();
-    },
-    imageUpload.array("photos"),
-    createInspectionController
-  );
+  .post(imageUpload.array("photos"), createInspectionController);
 
 export default router;

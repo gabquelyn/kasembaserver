@@ -43,12 +43,12 @@ export const payController = expressAsyncHandler(
     const session = await stripe.checkout.sessions.create({
       line_items: nonUndefinedLineItems,
       mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/confirmation`,
+      success_url: `${process.env.FRONTEND_URL}/confirmation/${inspectionId}`,
       cancel_url: `${process.env.FRONTEND_URL}/dashboard`,
     });
 
     // update the paid price
-    inspection.price = session.amount_total! / 100
+    inspection.price = session.amount_total! / 100;
     await inspection.save();
 
     // check if any session existed before
@@ -77,13 +77,14 @@ export const confirmPaymentController = expressAsyncHandler(
     const _session = await stripe.checkout.sessions.retrieve(
       stripeSession.sessionId
     );
-    if (_session.payment_status === "paid") {
-      const inspection = await Inspection.findById(inspectionId).exec();
-      if (inspection) {
-        inspection.paid = true;
-        inspection.save();
-      }
+    const inspection = await Inspection.findById(inspectionId).exec();
+    if (!inspection) {
+      return res.status(400).json({ message: "not found" });
     }
-    res.status(200).json({ _session });
+    if (_session.payment_status === "paid") {
+      inspection.paid = true;
+      inspection.save();
+    }
+    res.status(200).json({ ..._session });
   }
 );

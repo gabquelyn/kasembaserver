@@ -5,8 +5,7 @@ import {
   confirmPaymentController,
 } from "../controllers/paymentControllers";
 const router = Router();
-router.use(verifyJWT);
-router.route("/:inspectionId").post(payController);
+router.route("/:inspectionId").post(verifyJWT, payController);
 router
   .route("/check-payment-status/:inspectionId")
   .get(confirmPaymentController);

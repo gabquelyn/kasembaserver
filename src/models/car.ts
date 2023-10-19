@@ -6,7 +6,7 @@ const carSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    type: {
+    usage: {
       type: String,
       required: true,
       default: "new",
@@ -24,7 +24,10 @@ const carSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
+    millage: {
+      type: String,
+      required: true,
+    },
     sell: {
       type: Boolean,
       default: false,
@@ -33,6 +36,7 @@ const carSchema = new mongoose.Schema(
       type: String,
       default: "dealer",
     },
+    features: [{ type: String }],
     currency: {
       type: String,
       default: "USD",
@@ -47,10 +51,10 @@ const carSchema = new mongoose.Schema(
           type: String,
         },
         from: {
-          type: String,
+          type: Number,
         },
         to: {
-          type: String,
+          type: Number,
         },
       },
     ],

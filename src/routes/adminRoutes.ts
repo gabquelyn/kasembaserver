@@ -29,7 +29,22 @@ router
         .withMessage("Invalid sub-categories"),
     ],
     createCategoryController
-  );
+  )
+  .patch(
+    onlyAdmin,
+    [
+      body("name").trim().notEmpty().withMessage("Missing category name"),
+      body("cost").trim().notEmpty().withMessage("Missing category cost"),
+      body("plan").trim().notEmpty().withMessage("Missing category  plan"),
+      body("sub_categories")
+        .custom((value, { req }) => {
+          return Array.isArray(value) && value.length !== 0;
+        })
+        .withMessage("Invalid sub-categories"),
+    ],
+    editCategoryController
+  )
+  .delete(onlyAdmin, deleteCategoryController);
 
 router
   .route("/category/:categoryId")

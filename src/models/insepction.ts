@@ -5,6 +5,7 @@ const inspectionSchemma = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
+      unique: false,
     },
     carId: {
       type: mongoose.Types.ObjectId,
@@ -18,6 +19,10 @@ const inspectionSchemma = new mongoose.Schema(
     },
     distance: {
       type: Number,
+      required: true,
+    },
+    time: {
+      type: Date,
       required: true,
     },
     location: {
@@ -40,7 +45,7 @@ const inspectionSchemma = new mongoose.Schema(
     price: {
       type: Number,
       required: true,
-      default: 0
+      default: 0,
     },
     paid: {
       type: Boolean,

@@ -40,16 +40,32 @@ export const createInspectionController = expressAsyncHandler(
       currency,
       cost,
       city,
+      usage,
       address,
       zip_code,
+      features,
+      time,
       category,
       showcase,
+      millage,
     } = req.body;
+    if (
+      !city ||
+      !address ||
+      !zip_code ||
+      !vin ||
+      !color ||
+      !description ||
+      !millage ||
+      !time
+    ) {
+      return res.status(400).json({ message: "Missing required parameters" });
+    }
     const selectedCategories: string[] = JSON.parse(category);
     // check for the user existence first
     const userId = (req as CustomRequest).userId;
     const user = await User.findById(userId).exec();
-    if (!user) return res.status(200).json({ message: "user doesn't exist!" });
+    if (!user) return res.status(400).json({ message: "user doesn't exist!" });
 
     // check the postal code of the inspection
     let _distance: number = Infinity;
@@ -61,7 +77,7 @@ export const createInspectionController = expressAsyncHandler(
       );
 
       if (destinationRes.data.results.length === 0) {
-        return res.status(400).json({
+        return res.status(405).json({
           message: `Our services is not yet available in your region with zip code ${zip_code}`,
         });
       }
@@ -92,8 +108,8 @@ export const createInspectionController = expressAsyncHandler(
 
     if (_distance === Infinity) {
       return res
-        .status(400)
-        .json({ message: "No inspector availabel in region" });
+        .status(404)
+        .json({ message: "No inspector available in region" });
     }
 
     const imageArray: string[] = [];
@@ -115,16 +131,20 @@ export const createInspectionController = expressAsyncHandler(
       vin,
       color,
       description,
-      sell,
+      sell: JSON.parse(sell),
       sell_type,
-      cost,
+      cost: JSON.parse(cost),
+      usage,
+      features: JSON.parse(features),
       currency,
-      showcase,
+      showcase: JSON.parse(showcase),
+      millage,
     });
 
     const newInspection = await Inspection.create({
       userId,
       carId: newCar._id,
+      time,
       location: {
         city,
         address,
@@ -140,8 +160,6 @@ export const createInspectionController = expressAsyncHandler(
       closestInspector.inspections.push(newInspection._id);
       await closestInspector.save();
     }
-    return res
-      .status(201)
-      .json({ message: `inspection created succesfully ${newInspection._id}` });
+    return res.status(201).json({ id: newInspection._id });
   }
 );
