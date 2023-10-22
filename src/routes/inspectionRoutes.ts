@@ -1,9 +1,10 @@
 import verifyJWT from "../middlewares/verifyJWT";
-import { NextFunction, Router, Request, Response } from "express";
+import { Router} from "express";
 import imageUpload from "../utils/imageUpload";
 import {
   getInspectionController,
   createInspectionController,
+  getInspectionById
 } from "../controllers/inspectionControllers";
 
 const router = Router();
@@ -13,4 +14,5 @@ router
   .get(getInspectionController)
   .post(imageUpload.array("photos"), createInspectionController);
 
+router.route("/:inspectionId").get(getInspectionById)
 export default router;

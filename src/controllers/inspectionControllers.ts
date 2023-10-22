@@ -163,3 +163,13 @@ export const createInspectionController = expressAsyncHandler(
     return res.status(201).json({ id: newInspection._id });
   }
 );
+
+export const getInspectionById = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { inspectionId } = req.params;
+    const inspection = await Inspection.findById(inspectionId).lean().exec();
+    if (!inspection)
+      return res.status(400).json({ message: "Inspection not found" });
+    return res.status(200).json({ inspection });
+  }
+);
