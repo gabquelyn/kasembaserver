@@ -17,14 +17,19 @@ export const getInspectionController = expressAsyncHandler(
     const userId = (req as CustomRequest).userId;
     if ((req as CustomRequest).roles === "administrator") {
       const inspections = await Inspection.find({}).lean().exec();
-      return res.status(200).json({ ...inspections });
+      return res.status(200).json([...inspections]);
     }
     if ((req as CustomRequest).roles === "inspector") {
-      const inspector = await User.findById(userId).lean().exec();
-      return res.status(200).json({ ...inspector?.inspections });
+      const inspector = await User.findById(userId)
+        .populate("inspections")
+        .exec();
+      if (!inspector) return res.status(200).json([]);
+      return res.status(200).json([...inspector.inspections]);
     }
-    const inspections = await Inspection.find({ userId }).lean().exec();
-    return res.status(200).json({ ...inspections });
+    const inspections = await Inspection.find({ userId })
+      .populate("category")
+      .exec();
+    return res.status(200).json([...inspections]);
   }
 );
 
@@ -68,48 +73,14 @@ export const createInspectionController = expressAsyncHandler(
     if (!user) return res.status(400).json({ message: "user doesn't exist!" });
 
     // check the postal code of the inspection
-    let _distance: number = Infinity;
-    let inspectorObjectId: Types.ObjectId = new Types.ObjectId(4);
+    const destinationRes = await axios.get(
+      `https://api.geocod.io/v1.7/geocode?postal_code=${zip_code}&api_key=${process.env.GEOCODIO_API_KEY}`
+    );
 
-    try {
-      const destinationRes = await axios.get(
-        `https://api.geocod.io/v1.7/geocode?postal_code=${zip_code}&api_key=${process.env.GEOCODIO_API_KEY}`
-      );
-
-      if (destinationRes.data.results.length === 0) {
-        return res.status(405).json({
-          message: `Our services is not yet available in your region with zip code ${zip_code}`,
-        });
-      }
-
-      // check for the closest inspector to assign the inspection to
-      const allInspectors = await User.find({ roles: "inspector" })
-        .lean()
-        .exec();
-      if (allInspectors.length === 0) {
-        return res.status(404).json({ message: "no available inspectors" });
-      }
-
-      for (const inspector of allInspectors) {
-        if (inspector.zip_code) {
-          const distanceInKm = await checkDistance(
-            inspector.zip_code,
-            destinationRes.data.results[0].location
-          );
-          if (distanceInKm < _distance) {
-            _distance = distanceInKm;
-            inspectorObjectId = inspector._id;
-          }
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-
-    if (_distance === Infinity) {
-      return res
-        .status(404)
-        .json({ message: "No inspector available in region" });
+    if (destinationRes.data.results.length === 0) {
+      return res.status(405).json({
+        message: `Our services is not yet available in your region with zip code ${zip_code}`,
+      });
     }
 
     const imageArray: string[] = [];
@@ -145,21 +116,14 @@ export const createInspectionController = expressAsyncHandler(
       userId,
       carId: newCar._id,
       time,
+      position: destinationRes.data.results[0].location,
       location: {
         city,
         address,
         zip_code,
       },
       category: selectedCategories,
-      distance: _distance,
     });
-
-    // assign the inspection to the closest inspector
-    const closestInspector = await User.findById(inspectorObjectId).exec();
-    if (closestInspector) {
-      closestInspector.inspections.push(newInspection._id);
-      await closestInspector.save();
-    }
     return res.status(201).json({ id: newInspection._id });
   }
 );
@@ -167,9 +131,12 @@ export const createInspectionController = expressAsyncHandler(
 export const getInspectionById = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { inspectionId } = req.params;
-    const inspection = await Inspection.findById(inspectionId).lean().exec();
+    const inspection = await Inspection.findById(inspectionId)
+      .populate("category")
+      .lean()
+      .exec();
     if (!inspection)
       return res.status(400).json({ message: "Inspection not found" });
-    return res.status(200).json({ inspection });
+    return res.status(200).json({ ...inspection });
   }
 );

@@ -1,6 +1,5 @@
 import expressAsyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import Inspection from "../models/insepction";
 import Car from "../models/car";
 import User from "../models/user";
 interface CustomRequest extends Request {
@@ -21,22 +20,23 @@ export const getCarsControllers = expressAsyncHandler(
   }
 );
 
+export const getCarController = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { carId } = req.params;
+    const car = await Car.findById(carId).lean().exec();
+    if (!car) return res.status(404);
+    return res.status(200).json({ ...car });
+  }
+);
+
 export const postCarsController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const userId = (req as CustomRequest).userId;
     const user = await User.findById(userId).exec();
     const imageArray: string[] = [];
 
-    const {
-      type,
-      vin,
-      color,
-      description,
-      sell,
-      sell_type,
-      cost,
-      showcase,
-    } = req.body;
+    const { type, vin, color, description, sell, sell_type, cost, showcase } =
+      req.body;
 
     if (req.files) {
       for (let i = 0; i < +req.files?.length; i++) {

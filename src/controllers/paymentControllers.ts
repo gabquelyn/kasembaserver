@@ -3,7 +3,10 @@ import { Request, Response } from "express";
 import Session from "../models/session";
 import Stripe from "stripe";
 import Inspection from "../models/insepction";
+import User from "../models/user";
 import Category from "../models/category";
+import { Types } from "mongoose";
+import { checkDistance } from "../utils/findLocation";
 
 export const payController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
@@ -72,19 +75,54 @@ export const confirmPaymentController = expressAsyncHandler(
       appInfo: { name: "Karsemba" },
     });
     const { inspectionId } = req.params;
+    const inspection = await Inspection.findById(inspectionId).exec();
+    if (!inspection) {
+      return res.status(400).json({ message: "not found" });
+    }
+    if (inspection.paid) return res.status(400);
+
     const stripeSession = await Session.findOne({ inspectionId }).exec();
     if (!stripeSession) return res.status(400);
     const _session = await stripe.checkout.sessions.retrieve(
       stripeSession.sessionId
     );
-    const inspection = await Inspection.findById(inspectionId).exec();
-    if (!inspection) {
-      return res.status(400).json({ message: "not found" });
-    }
+
     if (_session.payment_status === "paid") {
       inspection.paid = true;
       inspection.save();
     }
+
+    // assign inspection to the inspector only
+    let _distance: number = Infinity;
+    let inspectorObjectId: Types.ObjectId = new Types.ObjectId(4);
+
+    const allInspectors = await User.find({ roles: "inspector" }).lean().exec();
+    if (allInspectors.length === 0) {
+      // return res.status(404).json({ message: "no available inspectors" });
+      // inform admin
+    }
+    for (const inspector of allInspectors) {
+      if (inspector.zip_code) {
+        const distanceInKm = await checkDistance(
+          inspector.zip_code,
+          inspection.position!
+        );
+        if (distanceInKm < _distance) {
+          _distance = distanceInKm;
+          inspectorObjectId = inspector._id;
+        }
+      }
+    }
+
+    const closestInspector = await User.findById(inspectorObjectId).exec();
+    if (closestInspector) {
+      closestInspector.inspections.push(new Types.ObjectId(inspectionId));
+      await closestInspector.save();
+    }
+    
+    inspection.distance = _distance;
+    await inspection.save()
+
     res.status(200).json({ ..._session });
   }
 );

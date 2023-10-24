@@ -19,7 +19,16 @@ const inspectionSchemma = new mongoose.Schema(
     },
     distance: {
       type: Number,
-      required: true,
+    },
+    position: {
+      lat: {
+        type: Number,
+        required: true
+      },
+      lng: {
+        type: Number,
+        required: true
+      }
     },
     time: {
       type: Date,
