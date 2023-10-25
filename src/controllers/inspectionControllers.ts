@@ -4,8 +4,6 @@ import Inspection from "../models/insepction";
 import Car from "../models/car";
 import User from "../models/user";
 import axios from "axios";
-import { checkDistance } from "../utils/findLocation";
-import { Types } from "mongoose";
 interface CustomRequest extends Request {
   roles?: string;
   email?: string;

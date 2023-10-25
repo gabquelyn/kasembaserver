@@ -10,6 +10,7 @@ interface CustomRequest extends Request {
   email?: string;
   userId?: string;
 }
+
 export const getReportsController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const userId = (req as CustomRequest).userId;
@@ -31,8 +32,10 @@ export const createReportsController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const inspectorId = (req as CustomRequest).userId;
 
-    const { inspectionId } = req.params;
-    const inspection = await Insepction.findById(inspectionId).exec();
+    const { inspectionId, details } = req.body;
+    const inspection = await Insepction.findById(inspectionId)
+      .populate("category")
+      .exec();
     if (!inspection)
       return res.status(404).json({ message: "Inspection not found" });
     if (!inspection.paid)
@@ -50,33 +53,34 @@ export const createReportsController = expressAsyncHandler(
         .status(400)
         .json({ message: "Cannot interact with inspection" });
 
-    const { details } = req.body;
-    const parsedDetails: {
-      name: string;
-      condition: string;
-      position?: string;
-    }[] = JSON.parse(details);
-
-    const fileFields = req.files as {
-      [fieldname: string]: Express.Multer.File[];
-    };
-
-    const formatedDetails = parsedDetails.map((detail) => {
-      return {
-        ...detail,
-        image: `${fileFields[detail.name][0]?.destination}/${
-          fileFields[detail.name][0].filename
-        }`,
-      };
+    const allTest: {
+      [key: string]: { state: string; comment?: string; image?: string[] };
+    } = JSON.parse(details);
+    
+    Object.keys(allTest).forEach((test) => {
+    const imageArray: string[] = [];
+      if ((req.files as { [fieldname: string]: Express.Multer.File[] })[test]) {
+        for (let i = 0; i < (req.files as { [fieldname: string]: Express.Multer.File[] })[test].length; i++) {
+          imageArray.push(
+            `${(req.files as { [fieldname: string]: Express.Multer.File[] })[test][i].destination}/${
+              (req.files as { [fieldname: string]: Express.Multer.File[] })[test][i].filename
+            }`
+          );
+        }
+        allTest[test].image = imageArray
+      }
     });
 
     const newReport = await Report.create({
       inspectorId,
       inspectionId,
-      details: formatedDetails,
+      details: {...allTest}
     });
 
+    
+
     inspector.reports.push(newReport._id);
+    inspector.inspections.filter(entity => entity._id !== inspectionId)
     await inspector.save();
     return res.status(200).json({
       message: `New report created ${newReport._id} awaiting to be published`,

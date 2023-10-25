@@ -5,7 +5,6 @@ const inspectionSchemma = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: false,
     },
     carId: {
       type: mongoose.Types.ObjectId,

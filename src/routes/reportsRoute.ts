@@ -9,9 +9,9 @@ import onlyInspectors from "../middlewares/onlyInspectors";
 import imageUpload from "../utils/imageUpload";
 const router = Router();
 router.use(verifyJWT);
-router.route("/").get(getReportsController);
 router
-  .route("/:inspectionId")
+  .route("/")
+  .get(getReportsController)
   .post(
     onlyInspectors,
     async (req: Request, res: Response, next: NextFunction) => {

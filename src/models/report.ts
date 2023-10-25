@@ -16,26 +16,7 @@ const reportSchema = new mongoose.Schema(
       type: String,
       default: "unpublished",
     },
-    details: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        condition: {
-          type: String,
-          required: true,
-        },
-        position: {
-          type: String,
-          required: false,
-        },
-        image: {
-          type: String,
-          required: false,
-        },
-      },
-    ],
+    details: {},
   },
   {
     timestamps: true,
