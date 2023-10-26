@@ -16,15 +16,22 @@ export const getReportsController = expressAsyncHandler(
     const userId = (req as CustomRequest).userId;
     const roles = (req as CustomRequest).roles;
     if (roles === "administrator") {
-      const allReports = await Report.find({}).lean().exec();
+      const allReports = await Report.find({})
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec();
       return res.status(200).json({ message: allReports });
     }
 
     const inspectorReports = await User.findById(userId)
-      .populate("reports")
+      .populate({
+        path: "reports",
+        options: { sort: { createdAt: -1 } },
+      })
       .lean()
       .exec();
-    return res.status(200).json({ message: inspectorReports });
+    if (!inspectorReports) return res.status(200).json([]);
+    return res.status(200).json([...inspectorReports.reports]);
   }
 );
 
@@ -56,31 +63,41 @@ export const createReportsController = expressAsyncHandler(
     const allTest: {
       [key: string]: { state: string; comment?: string; image?: string[] };
     } = JSON.parse(details);
-    
+
     Object.keys(allTest).forEach((test) => {
-    const imageArray: string[] = [];
+      const imageArray: string[] = [];
       if ((req.files as { [fieldname: string]: Express.Multer.File[] })[test]) {
-        for (let i = 0; i < (req.files as { [fieldname: string]: Express.Multer.File[] })[test].length; i++) {
+        for (
+          let i = 0;
+          i <
+          (req.files as { [fieldname: string]: Express.Multer.File[] })[test]
+            .length;
+          i++
+        ) {
           imageArray.push(
-            `${(req.files as { [fieldname: string]: Express.Multer.File[] })[test][i].destination}/${
-              (req.files as { [fieldname: string]: Express.Multer.File[] })[test][i].filename
+            `${
+              (req.files as { [fieldname: string]: Express.Multer.File[] })[
+                test
+              ][i].destination
+            }/${
+              (req.files as { [fieldname: string]: Express.Multer.File[] })[
+                test
+              ][i].filename
             }`
           );
         }
-        allTest[test].image = imageArray
+        allTest[test].image = imageArray;
       }
     });
 
     const newReport = await Report.create({
       inspectorId,
       inspectionId,
-      details: {...allTest}
+      details: { ...allTest },
     });
 
-    
-
     inspector.reports.push(newReport._id);
-    inspector.inspections.filter(entity => entity._id !== inspectionId)
+    inspector.inspections.filter((entity) => entity._id !== inspectionId);
     await inspector.save();
     return res.status(200).json({
       message: `New report created ${newReport._id} awaiting to be published`,

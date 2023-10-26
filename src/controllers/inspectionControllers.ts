@@ -14,17 +14,24 @@ export const getInspectionController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const userId = (req as CustomRequest).userId;
     if ((req as CustomRequest).roles === "administrator") {
-      const inspections = await Inspection.find({}).lean().exec();
+      const inspections = await Inspection.find({})
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec();
       return res.status(200).json([...inspections]);
     }
     if ((req as CustomRequest).roles === "inspector") {
       const inspector = await User.findById(userId)
-        .populate("inspections")
+        .populate({
+          path: "inspections",
+          options: { sort: { createdAt: -1 } },
+        })
         .exec();
       if (!inspector) return res.status(200).json([]);
       return res.status(200).json([...inspector.inspections]);
     }
     const inspections = await Inspection.find({ userId })
+      .sort({ createdAt: -1 })
       .populate("category")
       .exec();
     return res.status(200).json([...inspections]);
