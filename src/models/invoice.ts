@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const requestSchema = new mongoose.Schema(
+const invoiceSchema = new mongoose.Schema(
   {
     inspectorId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,4 +20,4 @@ const requestSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-export default mongoose.model("Request", requestSchema);
+export default mongoose.model("Invoice", invoiceSchema);

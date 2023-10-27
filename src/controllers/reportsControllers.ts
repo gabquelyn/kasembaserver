@@ -99,6 +99,8 @@ export const createReportsController = expressAsyncHandler(
     inspector.reports.push(newReport._id);
     inspector.inspections.filter((entity) => entity._id !== inspectionId);
     await inspector.save();
+    inspection.status = "reported";
+    await inspection.save();
     return res.status(200).json({
       message: `New report created ${newReport._id} awaiting to be published`,
     });
