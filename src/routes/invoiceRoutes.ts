@@ -11,5 +11,5 @@ import {
 const router = Router();
 router.use(verifyJWT);
 router.route("/").post(onlyInspectors, generateInvoice).get(getInvoices);
-router.route("/:inspectionId").get(getInvoice).post(onlyAdmin, completeInvoice);
+router.route("/:invoiceId").get(getInvoice).post(onlyAdmin, completeInvoice);
 export default router;

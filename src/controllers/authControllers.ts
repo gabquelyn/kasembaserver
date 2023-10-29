@@ -41,9 +41,17 @@ export const signupController = expressAsyncHandler(
       token: crypto.randomBytes(32).toString("hex"),
     });
 
-    const url = `${process.env.BASE_URL}/auth/${newUser._id}/verify/${verificationToken.token}`;
+    const url = `${process.env.FRONTEND_URL}/auth/${newUser._id}/verify/${verificationToken.token}`;
     // send the verification url via email
-    await sendMail(newUser.email, "Verify email", `<p>${url}</p>`);
+    await sendMail(
+      newUser.email,
+      "Verify email",
+      "Verify your email address",
+      "Please click on the button to confirm your email address and activate your account",
+      "Confirm email",
+      url,
+      "mail.png"
+    );
     res
       .status(201)
       .json({ message: "Email sent to your account please verify" });
@@ -75,7 +83,15 @@ export const loginController = expressAsyncHandler(
 
         const url = `${process.env.BASE_URL}/auth/${foundUser._id}/verify/${verificationToken.token}`;
 
-        await sendMail(foundUser.email, "Verify email", `<p>${url}</p>`);
+        await sendMail(
+          foundUser.email,
+          "Verify email",
+          "Verify your email address",
+          "Please click on the button to confirm your email address and activate your account",
+          "Confirm email",
+          url,
+          "mail.png"
+        );
       }
 
       return res
@@ -213,7 +229,15 @@ export const forgotPasswordController = expressAsyncHandler(
     const url = `${process.env.BASE_URL}/auth/reset/${otp.token}`;
 
     // send the verification url via email
-    await sendMail(user.email, "Reset password", `<p>${url}</p>`);
+    await sendMail(
+      user.email,
+      "Reset Password",
+      "Reset Password to access your account",
+      "Please click on the button to update your password and regain access to your account",
+      "Reset Password",
+      url,
+      "reset.png"
+    );
     return res
       .status(200)
       .json({ message: "Recovery mail sent successfully!" });

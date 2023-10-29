@@ -1,9 +1,21 @@
+import fs from "fs";
+import path from "path";
 import nodemailer from "nodemailer";
 import { logEvents } from "../middlewares/logger";
+
+const emailBodyTemplate = fs.readFileSync(
+  path.join(__dirname, "../..", "templates", "auth.html"),
+  "utf-8"
+);
+
 export default async function sendMail(
   email: string,
   subject: string,
-  html: string
+  title: string,
+  subtitle: string,
+  cta: string,
+  link: string,
+  filename: string
 ) {
   try {
     const transporter = nodemailer.createTransport({
@@ -21,7 +33,18 @@ export default async function sendMail(
       from: process.env.SMTP_USER,
       to: email,
       subject: subject,
-      html: html,
+      html: emailBodyTemplate
+        .replace("[title_placeholder]", title)
+        .replace("[subtitle_placeholder]", subtitle)
+        .replace("[link_placeholder]", link)
+        .replace("[cta_placeholder]", cta),
+      attachments: [
+        {
+          filename,
+          path: path.join(__dirname, "../..", "templates", filename),
+          cid: "image_cid",
+        },
+      ],
     });
     console.log("Email sent successfully!");
   } catch (err) {
