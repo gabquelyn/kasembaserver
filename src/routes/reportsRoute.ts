@@ -2,17 +2,18 @@ import { Router, Response, Request, NextFunction } from "express";
 import {
   getReportsController,
   createReportsController,
+  getReportController,
 } from "../controllers/reportsControllers";
 import reportFields from "../utils/reportFields";
 import verifyJWT from "../middlewares/verifyJWT";
 import onlyInspectors from "../middlewares/onlyInspectors";
 import imageUpload from "../utils/imageUpload";
 const router = Router();
+router.use(verifyJWT);
 router
   .route("/")
   .get(getReportsController)
   .post(
-    verifyJWT,
     onlyInspectors,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -30,5 +31,6 @@ router
       }
     }
   );
+router.route("/:reportId").get(getReportController);
 
 export default router;

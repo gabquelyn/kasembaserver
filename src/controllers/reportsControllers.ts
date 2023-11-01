@@ -20,7 +20,7 @@ export const getReportsController = expressAsyncHandler(
         .sort({ createdAt: -1 })
         .lean()
         .exec();
-      return res.status(200).json({ message: allReports });
+      return res.status(200).json([...allReports]);
     }
 
     const inspectorReports = await User.findById(userId)
@@ -104,5 +104,14 @@ export const createReportsController = expressAsyncHandler(
     return res.status(200).json({
       message: `New report created ${newReport._id} awaiting to be published`,
     });
+  }
+);
+
+export const getReportController = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { reportId } = req.params;
+    const report = await Report.findById(reportId).lean().exec();
+    if (!report) return res.status(404);
+    return res.status(200).json({ ...report });
   }
 );

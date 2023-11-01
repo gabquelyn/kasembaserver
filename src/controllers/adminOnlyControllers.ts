@@ -39,6 +39,7 @@ export const publishReportsController = expressAsyncHandler(
     const { reportId } = req.params;
     const report = await Report.findById(reportId).exec();
     if (!report) return res.status(404).json({ message: "report not found!" });
+    if (report.status === "published") return res.status(400);
     report.status = "published";
     await report.save();
 
@@ -49,10 +50,16 @@ export const publishReportsController = expressAsyncHandler(
       return res.status(400).json({ message: "Inspection does not exist" });
     const inspector = await User.findById(report.inspectorId).exec();
     if (inspector && inspector.roles === "inspector") {
-      inspector.balance += inspection?.price;
+      inspector.balance += inspection?.price 
       await inspector.save();
     }
     // send mail to client later!
     return res.status(200).json({ message: "Report published successfully!" });
   }
 );
+
+
+
+
+
+

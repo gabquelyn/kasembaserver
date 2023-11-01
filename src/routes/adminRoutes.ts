@@ -5,13 +5,17 @@ import {
   getClientHandler,
   getClientsHandler,
 } from "../controllers/usersControllers";
-import { assignController } from "../controllers/adminOnlyControllers";
+import {
+  assignController,
+  publishReportsController,
+} from "../controllers/adminOnlyControllers";
 import {
   getCategoriesController,
   editCategoryController,
   deleteCategoryController,
   createCategoryController,
 } from "../controllers/categoryControllers";
+
 import { body } from "express-validator";
 
 const router = Router();
@@ -57,5 +61,5 @@ router
 router.route("/u").get(getClientsHandler);
 router.route("/u/:userId").get(getClientHandler);
 router.route("/assign/:inspectorId/:inspectionId").post(assignController);
-router.route("/publish/:reportId");
+router.route("/publish/:reportId").get(publishReportsController);
 export default router;

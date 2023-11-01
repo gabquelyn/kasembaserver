@@ -226,7 +226,7 @@ export const forgotPasswordController = expressAsyncHandler(
       userId: user._id,
     });
 
-    const url = `${process.env.BASE_URL}/auth/reset/${otp.token}`;
+    const url = `${process.env.FRONTEND_URL}/auth/reset/${otp.token}`;
 
     // send the verification url via email
     await sendMail(
