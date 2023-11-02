@@ -38,9 +38,12 @@ app.use("/car", carRoutes);
 app.use("/inspection", inspectionsRoutes);
 app.use("/reports", reportsRoutes);
 app.use("/pay", paymentRoutes);
-app.use("/invoice", invoiceRoutes)
+app.use("/invoice", invoiceRoutes);
 
 // trying the distance calculation
+app.use("/", (req: Request, res: Response) => {
+  res.status(200).json({ messge: "Welcome to Karsemba server!" });
+});
 
 app.use(errorHandler);
 mongoose.connection.once("open", () => {
