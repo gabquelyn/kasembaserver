@@ -120,7 +120,12 @@ export const loginController = expressAsyncHandler(
       { expiresIn: "1d" }
     );
 
-    res.cookie("jwt", refreshToken);
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.json({ accessToken, roles: foundUser.roles });
   }
@@ -163,10 +168,9 @@ export const logoutController = expressAsyncHandler(
     const cookies = req.cookies;
     if (!cookies?.jwt) return res.sendStatus(204); //no content;
     res.clearCookie("jwt", {
-      httpOnly: true, //only accessible through a web browser
-      secure: false, //http for development only
-      sameSite: "none", // cross site cookie
-      maxAge: 7 * 24 * 60 * 60 * 1000, //
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
     });
     res.json({ message: "Cookie cleared" });
   }
