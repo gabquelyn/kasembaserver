@@ -10,13 +10,8 @@ interface CustomRequest extends Request {
 
 export const getCarsControllers = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const userId = (req as CustomRequest).userId;
-    if ((req as CustomRequest).roles === "administrator") {
-      const allCars = await Car.find({}).lean().exec();
-      return res.status(200).json({ message: allCars });
-    }
-    const cars = await User.findById(userId).populate("cars").lean().exec();
-    return res.status(200).json({ message: cars });
+    const allCars = await Car.find({}).lean().exec();
+    return res.status(200).json([...allCars]);
   }
 );
 
@@ -24,7 +19,7 @@ export const getCarController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { carId } = req.params;
     const car = await Car.findById(carId).lean().exec();
-    if (!car) return res.status(404);
+    if (!car) return res.status(404).json({ message: "No car found!" });
     return res.status(200).json({ ...car });
   }
 );

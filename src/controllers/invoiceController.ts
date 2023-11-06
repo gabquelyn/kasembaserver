@@ -10,7 +10,8 @@ interface CustomRequest extends Request {
 export const generateInvoice = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const inspector = await User.findById((req as CustomRequest).userId).exec();
-    if (!inspector) return res.status(404);
+    if (!inspector)
+      return res.status(404).json({ message: "No inspector found!" });
     if (inspector.balance < 100) {
       return res
         .status(400)
@@ -51,7 +52,7 @@ export const getInvoice = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { invoiceId } = req.params;
     const invoice = await Invoice.findById(invoiceId).lean().exec();
-    if (!invoice) return res.status(404);
+    if (!invoice) return res.status(404).json({ message: "No invoice found!" });
     return res.status(200).json({ ...invoice });
   }
 );
@@ -60,7 +61,7 @@ export const completeInvoice = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { invoiceId } = req.params;
     const invoice = await Invoice.findById(invoiceId).exec();
-    if (!invoice) return res.status(404);
+    if (!invoice) return res.status(404).json({ message: "No invoice found" });
     invoice.status = "paid";
     await invoice.save();
     return res.status(200).json({ message: `${invoiceId} marked as paid` });

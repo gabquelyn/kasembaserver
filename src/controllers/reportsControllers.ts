@@ -111,7 +111,21 @@ export const getReportController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { reportId } = req.params;
     const report = await Report.findById(reportId).lean().exec();
-    if (!report) return res.status(404);
+    if (!report) return res.status(404).json({ message: "no report" });
+    if (report.status !== "published")
+      return res.status(400).json({ message: "Report not published yet!" });
     return res.status(200).json({ ...report });
+  }
+);
+
+
+
+export const getInspectionReport = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { inspectionId } = req.params;
+    const report = await Report.findOne({ inspectionId }).lean().exec();
+    if (!report)
+      return res.status(404).json({ message: "no report for inspection" });
+    return res.status(200).json({ reportId: report._id });
   }
 );

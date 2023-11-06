@@ -41,7 +41,7 @@ export const getOverviewHandler = expressAsyncHandler(
     const inspector = await User.findById((req as CustomRequest).userId)
       .lean()
       .exec();
-    if (!inspector) return res.status(404);
+    if (!inspector) return res.status(404).json({message: "No inspector found!"})
 
     const completedPayments = await Invoice.find({
       inspectorId: (req as CustomRequest).userId,

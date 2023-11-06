@@ -12,7 +12,7 @@ export const getClientHandler = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { userId } = req.params;
     const client = await User.findById(userId).lean().exec();
-    if (!client) return res.status(404);
+    if (!client) return res.status(404).json({message: "Client not found"})
     return res.status(200).json({ ...client });
   }
 );
