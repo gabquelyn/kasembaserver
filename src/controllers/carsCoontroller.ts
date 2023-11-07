@@ -18,7 +18,13 @@ export const getCarsControllers = expressAsyncHandler(
 export const getCarController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { carId } = req.params;
-    const car = await Car.findById(carId).lean().exec();
+    const car = await Car.findById(carId)
+      .populate({
+        path: "userId",
+        select: "-password",
+      })
+      .lean()
+      .exec();
     if (!car) return res.status(404).json({ message: "No car found!" });
     return res.status(200).json({ ...car });
   }

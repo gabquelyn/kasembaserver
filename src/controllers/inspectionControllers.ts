@@ -57,7 +57,6 @@ export const createInspectionController = expressAsyncHandler(
       time,
       category,
       showcase,
-      millage,
     } = req.body;
     if (
       !city ||
@@ -66,10 +65,15 @@ export const createInspectionController = expressAsyncHandler(
       !vin ||
       !color ||
       !description ||
-      !millage ||
       !time
     ) {
       return res.status(400).json({ message: "Missing required parameters" });
+    }
+
+    if (sell === "true" && !cost) {
+      return res
+        .status(400)
+        .json({ message: "Include the cost of the vehicle" });
     }
     const selectedCategories: string[] = JSON.parse(category);
     // check for the user existence first
@@ -109,12 +113,11 @@ export const createInspectionController = expressAsyncHandler(
       description,
       sell: JSON.parse(sell),
       sell_type,
-      cost: JSON.parse(cost),
+      cost: cost ? JSON.parse(cost) : 0,
       usage,
       features: JSON.parse(features),
       currency,
-      showcase: JSON.parse(showcase),
-      millage,
+      showcase: showcase ? JSON.parse(showcase) : [],
     });
 
     const newInspection = await Inspection.create({

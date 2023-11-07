@@ -24,10 +24,6 @@ const carSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    millage: {
-      type: String,
-      required: true,
-    },
     sell: {
       type: Boolean,
       default: false,
