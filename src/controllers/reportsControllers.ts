@@ -59,41 +59,14 @@ export const createReportsController = expressAsyncHandler(
       return res
         .status(400)
         .json({ message: "Cannot interact with inspection" });
-
-    const allTest: {
-      [key: string]: { state: string; comment?: string; image?: string[] };
-    } = JSON.parse(details);
-
-    Object.keys(allTest).forEach((test) => {
-      const imageArray: string[] = [];
-      if ((req.files as { [fieldname: string]: Express.Multer.File[] })[test]) {
-        for (
-          let i = 0;
-          i <
-          (req.files as { [fieldname: string]: Express.Multer.File[] })[test]
-            .length;
-          i++
-        ) {
-          imageArray.push(
-            `${
-              (req.files as { [fieldname: string]: Express.Multer.File[] })[
-                test
-              ][i].destination
-            }/${
-              (req.files as { [fieldname: string]: Express.Multer.File[] })[
-                test
-              ][i].filename
-            }`
-          );
-        }
-        allTest[test].image = imageArray;
-      }
-    });
+    if (inspection.category.length !== details.length) {
+      return res.status(400).json({ message: "Invalide reports" });
+    }
 
     const newReport = await Report.create({
       inspectorId,
       inspectionId,
-      details: { ...allTest },
+      reports: [...details],
     });
 
     inspector.reports.push(newReport._id);
@@ -117,8 +90,6 @@ export const getReportController = expressAsyncHandler(
     return res.status(200).json({ ...report });
   }
 );
-
-
 
 export const getInspectionReport = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {

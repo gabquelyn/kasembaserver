@@ -16,7 +16,22 @@ const reportSchema = new mongoose.Schema(
       type: String,
       default: "unpublished",
     },
-    details: {},
+    reports: [
+      {
+        category: {
+          type: mongoose.Types.ObjectId,
+          ref: "Category",
+          required: true,
+        },
+        sub_categories: [
+          {
+            id: { type: String, required: true },
+            status: { type: String, required: true },
+            comment: String,
+          },
+        ],
+      },
+    ],
   },
   {
     timestamps: true,

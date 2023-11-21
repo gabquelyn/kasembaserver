@@ -26,6 +26,7 @@ const port = process.env.PORT || 8080;
 
 app.use(logger);
 app.use(cors(corsOptions));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/", express.static(path.join(__dirname, "public")));

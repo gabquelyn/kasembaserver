@@ -8,12 +8,7 @@ const categorySchema = new mongoose.Schema(
     sub_categories: [
       {
         name: { type: String, required: true },
-        options: [{ type: String, required: true }],
-        image_upload: {
-          type: Boolean,
-          required: true,
-          default: false,
-        },
+        image: { type: String, required: false },
       },
     ],
     cost: {

@@ -1,7 +1,6 @@
 import Category from "../models/category";
 import { Response, Request } from "express";
 import expressAsyncHandler from "express-async-handler";
-import { validationResult } from "express-validator";
 
 export const getCategoriesController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
@@ -12,38 +11,70 @@ export const getCategoriesController = expressAsyncHandler(
 
 export const createCategoryController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ message: errors.array() });
     const { name, sub_categories, cost, plan } = req.body;
+
+    if (!name || !sub_categories || !cost) {
+      return res.status(400).json({ message: "Missing reqired parameters" });
+    }
+    const parsedSub: string[] = JSON.parse(sub_categories);
+    const objectSubCategories: { name: string; image?: string }[] =
+      parsedSub.map((name) => ({ name }));
+
+    for (const file of req.files as Express.Multer.File[]) {
+      for (const category of objectSubCategories) {
+        if (file.fieldname === category.name) {
+          category.image = `${file.destination}/${file.filename}`;
+        }
+      }
+    }
+
     const newCategory = await Category.create({
       name,
-      cost,
-      sub_categories,
+      cost: Number(cost),
+      sub_categories: objectSubCategories,
       plan,
     });
-    if (newCategory) res.status(201).json({ message: "new category created" });
-    else res.status(400).json({ message: "unable to create new category" });
+    if (newCategory)
+      return res.status(201).json({ message: "new category created" });
+    return res.status(400).json({ message: "unable to create new category" });
   }
 );
 
 export const editCategoryController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const errors = validationResult(req.body);
-    if (!errors.isEmpty())
-      return res.status(400).json({
-        message: errors.array(),
-      });
-    const { categoryId } = req.params;
-    const { name, sub_categories, cost, plan } = req.body;
+    const { name, sub_categories, cost, plan, categoryId } = req.body;
     const category = await Category.findById(categoryId).exec();
     if (!category)
       return res
         .status(400)
         .json({ message: `Category of ${categoryId} does not exist` });
+
+    if (sub_categories) {
+      const subCategories: string[] = JSON.parse(sub_categories);
+      const existingSubCategoriesNames = category.sub_categories.map(
+        (sub) => sub.name
+      );
+
+      const objectSubCategories: { name: string; image?: string }[] =
+        subCategories
+          .filter((name) => !existingSubCategoriesNames.includes(name))
+          .map((name) => ({ name }));
+      for (const file of req.files as Express.Multer.File[]) {
+        for (const category of objectSubCategories) {
+          if (file.fieldname === category.name) {
+            category.image = `${file.destination}/${file.filename}`;
+          }
+        }
+      }
+
+      for (const sub of objectSubCategories) {
+        category.sub_categories.push(sub);
+      }
+      await category.save();
+    }
+
     if (name) category.name = name;
-    if (sub_categories) category.sub_categories = sub_categories;
-    if (cost) category.cost = cost;
+    if (cost) category.cost = Number(cost);
     if (plan) category.plan = plan;
     await category.save();
     return res
@@ -54,7 +85,7 @@ export const editCategoryController = expressAsyncHandler(
 
 export const deleteCategoryController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
-    const { categoryId } = req.body;
+    const { categoryId } = req.params;
     await Category.findByIdAndDelete(categoryId);
     res
       .status(200)
