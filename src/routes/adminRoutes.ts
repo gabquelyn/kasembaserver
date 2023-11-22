@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router} from "express";
 import verifyJWT from "../middlewares/verifyJWT";
 import onlyAdmin from "../middlewares/onlyAdmin";
 import {

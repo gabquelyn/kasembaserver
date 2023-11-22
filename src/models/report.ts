@@ -18,16 +18,14 @@ const reportSchema = new mongoose.Schema(
     },
     reports: [
       {
-        category: {
-          type: mongoose.Types.ObjectId,
-          ref: "Category",
-          required: true,
-        },
+        category: { type: String, required: true },
         sub_categories: [
           {
-            id: { type: String, required: true },
-            status: { type: String, required: true },
-            comment: String,
+            _id: { type: String, required: true },
+            state: { type: String, required: true },
+            comment: { type: String, required: false },
+            image: { type: String, required: true },
+            name: { type: String, required: true },
           },
         ],
       },
