@@ -41,9 +41,10 @@ export const publishReportsController = expressAsyncHandler(
     const { reportId } = req.params;
     const report = await Report.findById(reportId).exec();
     if (!report) return res.status(404).json({ message: "report not found!" });
-    if (report.status === "published") return res.status(400);
-    report.status = "published";
-    await report.save();
+    // if (report.status === "published")
+    //   return res.status(400).json({ message: "Already published" });
+    // report.status = "published";
+    // await report.save();
 
     const inspection = await Inspection.findById(report.inspectionId)
       .lean()
@@ -52,11 +53,11 @@ export const publishReportsController = expressAsyncHandler(
       return res.status(400).json({ message: "Inspection does not exist" });
     const user = await User.findById(inspection.userId).lean().exec();
     if (!user) return res.status(404).json({ message: "Placer not found!" });
-  
+
     const inspector = await User.findById(report.inspectorId).exec();
     if (inspector && inspector.roles === "inspector") {
       inspector.balance += inspection?.price * 0.6;
-      await inspector.save();
+      await inspector.save()
     }
     // send qrcode to client
     // Generate barcode
@@ -64,9 +65,10 @@ export const publishReportsController = expressAsyncHandler(
     const barcodeOptions = {
       bcid: "qrcode", // Barcode type
       text: reportId,
-      scale: 3, // Scale factor
-      height: 10,
-      width: 10,
+      scale: 9, // Scale factor
+      height: 60,
+      width: 60,
+      backgroundcolor: "FFFFFF",
     };
 
     const url = `${process.env.FRONTEND_URL}/report/${reportId}`;
