@@ -4,6 +4,8 @@ import { Request, Response } from "express";
 import Inspection from "../models/insepction";
 import Report from "../models/report";
 import User from "../models/user";
+import BwipJs from "bwip-js";
+import sendMail from "../utils/sendMail";
 export const assignController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { inspectorId, inspectionId } = req.params;
@@ -48,18 +50,39 @@ export const publishReportsController = expressAsyncHandler(
       .exec();
     if (!inspection)
       return res.status(400).json({ message: "Inspection does not exist" });
+    const user = await User.findById(inspection.userId).lean().exec();
+    if (!user) return res.status(404).json({ message: "Placer not found!" });
+  
     const inspector = await User.findById(report.inspectorId).exec();
     if (inspector && inspector.roles === "inspector") {
-      inspector.balance += inspection?.price * 0.6
+      inspector.balance += inspection?.price * 0.6;
       await inspector.save();
     }
-    // send mail to client later!
+    // send qrcode to client
+    // Generate barcode
+
+    const barcodeOptions = {
+      bcid: "qrcode", // Barcode type
+      text: reportId,
+      scale: 3, // Scale factor
+      height: 10,
+      width: 10,
+    };
+
+    const url = `${process.env.FRONTEND_URL}/report/${reportId}`;
+    const barcodeBase64 = await BwipJs.toBuffer(barcodeOptions);
+
+    await sendMail(
+      user.email,
+      "Report",
+      "Report ready!",
+      "Please click on the button to view report or scan on Karsemba",
+      "View report",
+      url,
+      undefined,
+      barcodeBase64
+    );
+
     return res.status(200).json({ message: "Report published successfully!" });
   }
 );
-
-
-
-
-
-

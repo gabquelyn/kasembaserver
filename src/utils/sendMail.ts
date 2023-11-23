@@ -15,7 +15,8 @@ export default async function sendMail(
   subtitle: string,
   cta: string,
   link: string,
-  filename: string
+  filename?: string,
+  barcodeBase64?: Buffer
 ) {
   try {
     const transporter = nodemailer.createTransport({
@@ -38,13 +39,22 @@ export default async function sendMail(
         .replace("[subtitle_placeholder]", subtitle)
         .replace("[link_placeholder]", link)
         .replace("[cta_placeholder]", cta),
-      attachments: [
-        {
-          filename,
-          path: path.join(__dirname, "../..", "templates", filename),
-          cid: "image_cid",
-        },
-      ],
+      attachments: filename
+        ? [
+            {
+              filename,
+              path: path.join(__dirname, "../..", "templates", filename),
+              cid: "image_cid",
+            },
+          ]
+        : [
+            {
+              filename: "barcode.png",
+              content: barcodeBase64,
+              encoding: "base64",
+              cid: "image_cid",
+            },
+          ],
     });
     console.log("Email sent successfully!");
   } catch (err) {

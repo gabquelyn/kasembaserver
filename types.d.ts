@@ -3,9 +3,15 @@ interface MulterField {
   maxCount: number;
 }
 
-interface Category {
+interface ReportSub {
+  _id?: string;
+  state: string;
+  comment: string;
+  image: string;
   name: string;
-  sub_categories: string[];
-  cost: number;
-  plan: string;
+}
+
+interface Reports{
+  category: string,
+  sub_categories: ReportSub[]
 }
