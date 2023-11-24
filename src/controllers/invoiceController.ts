@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import { Response, Request } from "express";
 import Invoice from "../models/invoice";
 import User from "../models/user";
+import Account from "../models/account";
 interface CustomRequest extends Request {
   roles: string;
   email: string;
@@ -18,10 +19,20 @@ export const generateInvoice = expressAsyncHandler(
         .json({ message: "Withdrawal request from at least $100" });
     }
 
+    const inspectorAccount = await Account.findOne({
+      userId: inspector._id,
+    })
+      .lean()
+      .exec();
+
+    if (!inspectorAccount)
+      return res.status(404).json({ message: "Account details not set" });
     const request = await Invoice.create({
       inspectorId: (req as CustomRequest).userId,
       amount: inspector.balance,
+      accountId: inspectorAccount._id,
     });
+    
     if (!request) res.status(400);
     inspector.balance = 0;
     await inspector.save();
