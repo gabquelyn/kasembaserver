@@ -1,4 +1,4 @@
-import { Router} from "express";
+import { Router } from "express";
 import verifyJWT from "../middlewares/verifyJWT";
 import onlyAdmin from "../middlewares/onlyAdmin";
 import {
@@ -8,6 +8,7 @@ import {
 import {
   assignController,
   publishReportsController,
+  getAccountController,
 } from "../controllers/adminOnlyControllers";
 import {
   getCategoriesController,
@@ -23,12 +24,13 @@ router
   .route("/category")
   .get(getCategoriesController)
   .post(onlyAdmin, imageUpload.any(), createCategoryController)
-  .patch(onlyAdmin, imageUpload.any(), editCategoryController)
+  .patch(onlyAdmin, imageUpload.any(), editCategoryController);
 router
   .route("/category/:categoryId")
   .delete(onlyAdmin, deleteCategoryController);
 
 router.route("/u").get(getClientsHandler);
+router.route("/account/:accountId").get(getAccountController);
 router.route("/u/:userId").get(getClientHandler);
 router.route("/assign/:inspectorId/:inspectionId").post(assignController);
 router.route("/publish/:reportId").get(publishReportsController);

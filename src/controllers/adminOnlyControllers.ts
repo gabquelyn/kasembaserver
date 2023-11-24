@@ -6,6 +6,7 @@ import Report from "../models/report";
 import User from "../models/user";
 import BwipJs from "bwip-js";
 import sendMail from "../utils/sendMail";
+import Account from "../models/account";
 export const assignController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { inspectorId, inspectionId } = req.params;
@@ -57,7 +58,7 @@ export const publishReportsController = expressAsyncHandler(
     const inspector = await User.findById(report.inspectorId).exec();
     if (inspector && inspector.roles === "inspector") {
       inspector.balance += inspection?.price * 0.6;
-      await inspector.save()
+      await inspector.save();
     }
     // send qrcode to client
     // Generate barcode
@@ -86,5 +87,15 @@ export const publishReportsController = expressAsyncHandler(
     );
 
     return res.status(200).json({ message: "Report published successfully!" });
+  }
+);
+
+export const getAccountController = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { accountId } = req.params;
+    const accountDetails = await Account.findById(accountId).lean().exec();
+    if (!accountDetails)
+      return res.status(400).json({ message: "Account not found" });
+    return res.status(200).json({ ...accountDetails });
   }
 );

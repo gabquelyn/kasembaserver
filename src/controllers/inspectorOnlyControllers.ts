@@ -67,7 +67,7 @@ export const getOverviewHandler = expressAsyncHandler(
   }
 );
 
-export const requestEditAccount = expressAsyncHandler(
+export const requestEditAccountHandler = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const userId = (req as CustomRequest).userId;
     const existingToken = await Token.findOne({
@@ -98,7 +98,7 @@ export const requestEditAccount = expressAsyncHandler(
   }
 );
 
-export const editAccount = expressAsyncHandler(
+export const editAccountHandler = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { userId, token } = req.params;
     const { name, bank, number } = req.body;
@@ -130,5 +130,16 @@ export const editAccount = expressAsyncHandler(
     });
 
     return res.status(201).json({ message: `${newAccount._id}` });
+  }
+);
+
+export const getAccountController = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const accountDetails = await Account.findOne({
+      userId: (req as CustomRequest).userId,
+    })
+      .lean()
+      .exec();
+    return res.status(200).json({ ...accountDetails });
   }
 );
