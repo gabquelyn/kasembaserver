@@ -8,6 +8,7 @@ import Token from "../models/token";
 import crypto from "crypto";
 import sendMail from "../utils/sendMail";
 import Account from "../models/account";
+import { validationResult } from "express-validator";
 interface CustomRequest extends Request {
   email: string;
   roles: string;
@@ -100,6 +101,9 @@ export const requestEditAccountHandler = expressAsyncHandler(
 
 export const editAccountHandler = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(404).json({ message: errors.array() });
     const { userId, token } = req.params;
     const { name, bank, number } = req.body;
     const user = await User.findById(userId).lean().exec();
