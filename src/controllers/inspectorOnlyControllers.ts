@@ -104,8 +104,7 @@ export const editAccountHandler = expressAsyncHandler(
     const errors = validationResult(req);
     if (!errors.isEmpty())
       return res.status(404).json({ message: errors.array() });
-    const { userId, token } = req.params;
-    const { name, bank, number } = req.body;
+    const { name, bank, number, userId, token } = req.body;
     const user = await User.findById(userId).lean().exec();
     if (!user) return res.status(400).send({ message: "Invalid link" });
     const existingToken = await Token.findOne({
