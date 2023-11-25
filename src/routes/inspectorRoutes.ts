@@ -9,24 +9,28 @@ import {
   requestEditAccountHandler,
   getAccountController,
 } from "../controllers/inspectorOnlyControllers";
-const router = Router();
-router.use(verifyJWT, onlyInspectors);
-router
-  .route("/acknowledge/:inspectionId")
-  .post(acknowledgeInspectionController);
 
-router.route("/overview").get(getOverviewHandler);
+const router = Router();
 router
   .route("/account")
   .post(
     [
       body("bank").notEmpty(),
       body("name").notEmpty(),
-      body("number").notEmpty().withMessage("missing required details"),
+      body("number")
+        .notEmpty()
+        .isNumeric()
+        .isLength({ min: 10, max: 10 })
+        .withMessage("missing required details"),
     ],
     editAccountHandler
-  )
-  .get(getAccountController);
+  );
+router.use(verifyJWT, onlyInspectors);
+router
+  .route("/acknowledge/:inspectionId")
+  .post(acknowledgeInspectionController);
+router.route("/account").get(getAccountController);
+router.route("/overview").get(getOverviewHandler);
 router.route("/account/reset").get(requestEditAccountHandler);
 
 export default router;

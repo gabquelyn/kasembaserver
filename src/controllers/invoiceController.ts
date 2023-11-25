@@ -27,13 +27,17 @@ export const generateInvoice = expressAsyncHandler(
 
     if (!inspectorAccount)
       return res.status(404).json({ message: "Account details not set" });
-    const request = await Invoice.create({
+
+    await Invoice.create({
       inspectorId: (req as CustomRequest).userId,
       amount: inspector.balance,
-      accountId: inspectorAccount._id,
+      details: {
+        bank: inspectorAccount.bank,
+        name: inspectorAccount.name,
+        number: inspectorAccount.number,
+      },
     });
-    
-    if (!request) res.status(400);
+
     inspector.balance = 0;
     await inspector.save();
     return res.status(201).json({ message: "Payment request sent" });

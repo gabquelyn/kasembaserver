@@ -75,12 +75,14 @@ export const requestEditAccountHandler = expressAsyncHandler(
       userId,
     }).exec();
 
+    console.log((req as CustomRequest).email)
     if (!existingToken) {
+      console.log("got here")
       const verificationToken = await Token.create({
         userId,
         token: crypto.randomBytes(32).toString("hex"),
       });
-      const url = `${process.env.FRONTEND_URL}/account/${userId}${verificationToken.token}`;
+      const url = `${process.env.FRONTEND_URL}/account/${userId}/${verificationToken.token}`;
 
       await sendMail(
         (req as CustomRequest).email,

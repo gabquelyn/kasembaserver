@@ -6,11 +6,6 @@ const invoiceSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
-    accountId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "Account",
-    },
     status: {
       type: String,
       required: true,
@@ -19,6 +14,11 @@ const invoiceSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: true,
+    },
+    details: {
+      bank: String,
+      name: String,
+      number: Number,
     },
   },
   {
