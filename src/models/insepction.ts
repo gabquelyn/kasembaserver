@@ -9,7 +9,7 @@ const inspectionSchemma = new mongoose.Schema(
     carId: {
       type: mongoose.Types.ObjectId,
       ref: "Car",
-      required: true,
+      required: false,
       unique: true,
     },
     status: {
@@ -22,12 +22,12 @@ const inspectionSchemma = new mongoose.Schema(
     position: {
       lat: {
         type: Number,
-        required: true
+        required: true,
       },
       lng: {
         type: Number,
-        required: true
-      }
+        required: true,
+      },
     },
     time: {
       type: Date,

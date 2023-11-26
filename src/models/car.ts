@@ -39,7 +39,7 @@ const carSchema = new mongoose.Schema(
     },
     cost: {
       type: Number,
-      required: false,
+      required: true,
     },
     showcase: [
       {

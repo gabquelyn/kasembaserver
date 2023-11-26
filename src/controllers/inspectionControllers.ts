@@ -41,7 +41,6 @@ export const getInspectionController = expressAsyncHandler(
 export const createInspectionController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const {
-      type,
       color,
       vin,
       description,
@@ -58,23 +57,10 @@ export const createInspectionController = expressAsyncHandler(
       category,
       showcase,
     } = req.body;
-    if (
-      !city ||
-      !address ||
-      !zip_code ||
-      !vin ||
-      !color ||
-      !description ||
-      !time
-    ) {
+    if (!city || !address || !zip_code || !time) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
 
-    if (sell === "true" && !cost) {
-      return res
-        .status(400)
-        .json({ message: "Include the cost of the vehicle" });
-    }
     const selectedCategories: string[] = JSON.parse(category);
     // check for the user existence first
     const userId = (req as CustomRequest).userId;
@@ -92,37 +78,41 @@ export const createInspectionController = expressAsyncHandler(
       });
     }
 
-    const imageArray: string[] = [];
-
-    if (req.files) {
-      for (let i = 0; i < +req.files?.length; i++) {
-        imageArray.push(
-          `${(req.files as Express.Multer.File[])[i].destination}/${
-            (req.files as Express.Multer.File[])[i].filename
-          }`
-        );
+    let carId;
+    // requirements for is different when selling and post car
+    if (sell) {
+      if (!vin || !color || description || !cost)
+        return res.status(400).json("Missing features for seller");
+      const imageArray: string[] = [];
+      if (req.files) {
+        for (let i = 0; i < +req.files?.length; i++) {
+          imageArray.push(
+            `${(req.files as Express.Multer.File[])[i].destination}/${
+              (req.files as Express.Multer.File[])[i].filename
+            }`
+          );
+        }
       }
+      const newCar = await Car.create({
+        userId,
+        images: imageArray,
+        vin,
+        color,
+        description,
+        sell: JSON.parse(sell),
+        sell_type,
+        cost: JSON.parse(cost),
+        usage,
+        features: JSON.parse(features),
+        currency,
+        showcase: JSON.parse(showcase) || [],
+      });
+      carId = newCar._id;
     }
-
-    const newCar = await Car.create({
-      userId,
-      type,
-      images: imageArray,
-      vin,
-      color,
-      description,
-      sell: JSON.parse(sell),
-      sell_type,
-      cost: cost ? JSON.parse(cost) : 0,
-      usage,
-      features: JSON.parse(features),
-      currency,
-      showcase: showcase ? JSON.parse(showcase) : [],
-    });
 
     const newInspection = await Inspection.create({
       userId,
-      carId: newCar._id,
+      carId: carId || null,
       time,
       position: destinationRes.data.results[0].location,
       location: {
@@ -132,6 +122,7 @@ export const createInspectionController = expressAsyncHandler(
       },
       category: selectedCategories,
     });
+
     return res.status(201).json({ id: newInspection._id });
   }
 );
