@@ -81,7 +81,7 @@ export const createInspectionController = expressAsyncHandler(
     let carId;
     // requirements for is different when selling and post car
     if (sell) {
-      if (!vin || !color || description || !cost)
+      if (!vin || !color || !cost)
         return res.status(400).json("Missing features for seller");
       const imageArray: string[] = [];
       if (req.files) {
@@ -105,7 +105,7 @@ export const createInspectionController = expressAsyncHandler(
         usage,
         features: JSON.parse(features),
         currency,
-        showcase: JSON.parse(showcase) || [],
+        showcase: showcase ? JSON.parse(showcase) : [],
       });
       carId = newCar._id;
     }
