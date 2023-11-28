@@ -87,9 +87,7 @@ export const createInspectionController = expressAsyncHandler(
       if (req.files) {
         for (let i = 0; i < +req.files?.length; i++) {
           imageArray.push(
-            `images/${
-              (req.files as Express.Multer.File[])[i].filename
-            }`
+            `images/${(req.files as Express.Multer.File[])[i].filename}`
           );
         }
       }
@@ -130,6 +128,7 @@ export const createInspectionController = expressAsyncHandler(
 export const getInspectionById = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { inspectionId } = req.params;
+    console.log(inspectionId);
     const inspection = await Inspection.findById(inspectionId)
       .populate("category")
       .lean()
