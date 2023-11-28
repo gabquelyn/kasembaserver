@@ -67,6 +67,7 @@ export const editCategoryController = expressAsyncHandler(
         }
       }
 
+      
       for (const sub of objectSubCategories) {
         category.sub_categories.push(sub);
       }

@@ -112,7 +112,7 @@ export const createInspectionController = expressAsyncHandler(
 
     const newInspection = await Inspection.create({
       userId,
-      carId: carId || null,
+      carId,
       time,
       position: destinationRes.data.results[0].location,
       location: {
