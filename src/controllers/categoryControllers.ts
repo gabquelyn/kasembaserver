@@ -23,7 +23,7 @@ export const createCategoryController = expressAsyncHandler(
     for (const file of req.files as Express.Multer.File[]) {
       for (const category of objectSubCategories) {
         if (file.fieldname === category.name) {
-          category.image = `${file.destination}/${file.filename}`;
+          category.image = `images/${file.filename}`;
         }
       }
     }

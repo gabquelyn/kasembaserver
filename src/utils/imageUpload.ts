@@ -4,7 +4,6 @@ import path from "path";
 const imageUpload = multer({
   storage: diskStorage({
     destination: function (req, file, cb) {
-      console.log(path.join(__dirname, "..", "..", "images"));
       cb(null, path.join(__dirname, "..", "..", "images"))
     },
     filename: function (req, file, cb) {
