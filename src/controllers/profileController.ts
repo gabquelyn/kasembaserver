@@ -47,7 +47,7 @@ export const editProfileController = expressAsyncHandler(
     if (!foundUser) return res.status(404).json({ message: "User not found" });
     if (req.file)
     console.log(req.file?.destination);
-      foundUser.avatar = `${req.file?.destination}/${req.file?.filename}`;
+      foundUser.avatar = `images/${req.file?.filename}`;
     if (firstname) foundUser.firstname = firstname;
     if (lastname) foundUser.lastname = lastname;
     if (phone_number) foundUser.phone_number = phone_number;

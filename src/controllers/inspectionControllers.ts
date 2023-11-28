@@ -87,7 +87,7 @@ export const createInspectionController = expressAsyncHandler(
       if (req.files) {
         for (let i = 0; i < +req.files?.length; i++) {
           imageArray.push(
-            `${(req.files as Express.Multer.File[])[i].destination}/${
+            `images/${
               (req.files as Express.Multer.File[])[i].filename
             }`
           );
