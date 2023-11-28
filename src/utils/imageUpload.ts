@@ -1,10 +1,11 @@
 import multer, { diskStorage } from "multer";
 import { v4 as uuid } from "uuid";
-
+import path from "path";
 const imageUpload = multer({
   storage: diskStorage({
     destination: function (req, file, cb) {
-      cb(null, "images");
+      console.log(path.join(__dirname, "..", "..", "images"));
+      cb(null, path.join(__dirname, "..", "..", "images"))
     },
     filename: function (req, file, cb) {
       cb(null, uuid() + "-" + file.originalname);
