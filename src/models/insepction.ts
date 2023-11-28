@@ -10,7 +10,6 @@ const inspectionSchemma = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Car",
       required: false,
-      unique: true,
     },
     status: {
       type: String,
