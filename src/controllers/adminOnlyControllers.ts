@@ -99,3 +99,12 @@ export const getAccountController = expressAsyncHandler(
     return res.status(200).json({ ...accountDetails });
   }
 );
+
+export const getReportController = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    const { reportId } = req.params;
+    const report = await Report.findById(reportId).lean().exec();
+    if (!report) return res.status(404).json({ message: "no report" });
+    return res.status(200).json({ ...report });
+  }
+);

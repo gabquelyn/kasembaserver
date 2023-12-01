@@ -43,44 +43,46 @@ export const createCategoryController = expressAsyncHandler(
 export const editCategoryController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { name, sub_categories, cost, plan, categoryId } = req.body;
-    const category = await Category.findById(categoryId).exec();
-    if (!category)
+    const foundCategory = await Category.findById(categoryId).exec();
+    if (!foundCategory)
       return res
         .status(400)
         .json({ message: `Category of ${categoryId} does not exist` });
 
     if (sub_categories) {
       const subCategories: string[] = JSON.parse(sub_categories);
-      const existingSubCategoriesNames = category.sub_categories.map(
+      const existingSubCategoriesNames = foundCategory.sub_categories.map(
         (sub) => sub.name
       );
 
       const objectSubCategories: { name: string; image?: string }[] =
-        subCategories
-          .filter((name) => !existingSubCategoriesNames.includes(name))
-          .map((name) => ({ name }));
+        subCategories.map((name) => ({ name }));
       for (const file of req.files as Express.Multer.File[]) {
         for (const category of objectSubCategories) {
           if (file.fieldname === category.name) {
             category.image = `images/${file.filename}`;
+          } else if (existingSubCategoriesNames.includes(category.name)) {
+            const foundDetails = foundCategory.sub_categories.find(
+              (sub) => sub.name === category.name
+            );
+            category.name = foundDetails?.image || "";
           }
         }
       }
 
-      
-      for (const sub of objectSubCategories) {
-        category.sub_categories.push(sub);
-      }
-      await category.save();
+  
+        foundCategory.sub_categories = objectSubCategories
+    
+      await foundCategory.save();
     }
 
-    if (name) category.name = name;
-    if (cost) category.cost = Number(cost);
-    if (plan) category.plan = plan;
-    await category.save();
+    if (name) foundCategory.name = name;
+    if (cost) foundCategory.cost = Number(cost);
+    if (plan) foundCategory.plan = plan;
+    await foundCategory.save();
     return res
       .status(200)
-      .json({ message: `Category of ${category._id} updated sucessfully` });
+      .json({ message: `Category of ${foundCategory._id} updated sucessfully` });
   }
 );
 

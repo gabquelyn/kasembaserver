@@ -9,6 +9,7 @@ import {
   assignController,
   publishReportsController,
   getAccountController,
+  getReportController,
 } from "../controllers/adminOnlyControllers";
 import {
   getCategoriesController,
@@ -33,5 +34,6 @@ router.route("/u").get(getClientsHandler);
 router.route("/account/:accountId").get(getAccountController);
 router.route("/u/:userId").get(getClientHandler);
 router.route("/assign/:inspectorId/:inspectionId").post(assignController);
+router.route("/reports/:reportId").get(getReportController);
 router.route("/publish/:reportId").get(publishReportsController);
 export default router;
