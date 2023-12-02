@@ -7,7 +7,7 @@ import User from "../models/user";
 import Category from "../models/category";
 import { Types } from "mongoose";
 import { checkDistance } from "../utils/findLocation";
-
+import sendMail from "../utils/sendMail";
 export const payController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const stripe = new Stripe(process.env.STRIPE_API_KEY!, {
@@ -104,7 +104,7 @@ export const confirmPaymentController = expressAsyncHandler(
     for (const inspector of allInspectors) {
       if (inspector.zip_code) {
         const distanceInKm = await checkDistance(
-          inspector.zip_code,
+          Number(inspector.zip_code),
           inspection.position!
         );
         if (distanceInKm < _distance) {
@@ -118,10 +118,21 @@ export const confirmPaymentController = expressAsyncHandler(
     if (closestInspector) {
       closestInspector.inspections.push(new Types.ObjectId(inspectionId));
       await closestInspector.save();
+      // notify the inspector
+      const url = `${process.env.FRONTEND_URL}/inspector/management`;
+      await sendMail(
+        closestInspector.email,
+        "Acknowledge Inspection",
+        "A new Inspection has been assigned to you",
+        "Please click on the button to see and acknowledge inspection",
+        "Go to inspection",
+        url,
+        "repair.png"
+      );
     }
-    
+
     inspection.distance = _distance;
-    await inspection.save()
+    await inspection.save();
 
     res.status(200).json({ ..._session });
   }

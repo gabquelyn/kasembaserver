@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema(
       required: false,
     },
     zip_code: {
-      type: Number,
+      type: String,
       required: false,
     },
     balance: {

@@ -44,12 +44,13 @@ export const editProfileController = expressAsyncHandler(
     }).exec();
     const { firstname, lastname, phone_number, country, zip_code, city } =
       req.body;
+    console.log(zip_code);
     if (!foundUser) return res.status(404).json({ message: "User not found" });
-    if (req.file){
+    if (req.file) {
       console.log(req.file?.destination);
       foundUser.avatar = `images/${req.file?.filename}`;
     }
-   
+
     if (firstname) foundUser.firstname = firstname;
     if (lastname) foundUser.lastname = lastname;
     if (phone_number) foundUser.phone_number = phone_number;

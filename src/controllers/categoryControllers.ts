@@ -55,24 +55,28 @@ export const editCategoryController = expressAsyncHandler(
         (sub) => sub.name
       );
 
+      // newly added subcategories
       const objectSubCategories: { name: string; image?: string }[] =
-        subCategories.map((name) => ({ name }));
+        subCategories
+          .filter((name) => !existingSubCategoriesNames.includes(name))
+          .map((name) => ({ name }));
+
       for (const file of req.files as Express.Multer.File[]) {
         for (const category of objectSubCategories) {
           if (file.fieldname === category.name) {
             category.image = `images/${file.filename}`;
-          } else if (existingSubCategoriesNames.includes(category.name)) {
-            const foundDetails = foundCategory.sub_categories.find(
-              (sub) => sub.name === category.name
-            );
-            category.name = foundDetails?.image || "";
           }
         }
       }
 
-  
-        foundCategory.sub_categories = objectSubCategories
-    
+      foundCategory.sub_categories.filter((sub) =>
+       !subCategories.includes(sub.name)
+      );
+
+      for (const sub of objectSubCategories) {
+        foundCategory.sub_categories.push(sub);
+      }
+
       await foundCategory.save();
     }
 
@@ -82,7 +86,9 @@ export const editCategoryController = expressAsyncHandler(
     await foundCategory.save();
     return res
       .status(200)
-      .json({ message: `Category of ${foundCategory._id} updated sucessfully` });
+      .json({
+        message: `Category of ${foundCategory._id} updated sucessfully`,
+      });
   }
 );
 
