@@ -69,6 +69,7 @@ export const editCategoryController = expressAsyncHandler(
         }
       }
 
+      //work on removing the previous
       foundCategory.sub_categories.filter((sub) =>
        !subCategories.includes(sub.name)
       );
@@ -79,6 +80,7 @@ export const editCategoryController = expressAsyncHandler(
 
       await foundCategory.save();
     }
+
 
     if (name) foundCategory.name = name;
     if (cost) foundCategory.cost = Number(cost);
