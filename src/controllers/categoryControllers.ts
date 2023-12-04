@@ -31,7 +31,6 @@ export const createCategoryController = expressAsyncHandler(
     for (const file of req.files as Express.Multer.File[]) {
       for (const category of objectSubCategories) {
         if (file.fieldname === category.name) {
-          //save image to aws S3
           const fileContent = fs.readFileSync(file.path);
           const awsRes = await S3.upload({
             Bucket: process.env.AWS_S3_BUCKET as string,
