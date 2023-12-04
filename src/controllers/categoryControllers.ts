@@ -1,7 +1,14 @@
 import Category from "../models/category";
 import { Response, Request } from "express";
 import expressAsyncHandler from "express-async-handler";
-
+import aws from "aws-sdk";
+import fs from "fs";
+const S3 = new aws.S3();
+aws.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
 export const getCategoriesController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const all_categories = await Category.find({}).lean().exec();
@@ -12,7 +19,6 @@ export const getCategoriesController = expressAsyncHandler(
 export const createCategoryController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     const { name, sub_categories, cost, plan } = req.body;
-
     if (!name || !sub_categories || !cost) {
       return res.status(400).json({ message: "Missing reqired parameters" });
     }
@@ -23,7 +29,16 @@ export const createCategoryController = expressAsyncHandler(
     for (const file of req.files as Express.Multer.File[]) {
       for (const category of objectSubCategories) {
         if (file.fieldname === category.name) {
-          category.image = `images/${file.filename}`;
+          //save image to aws S3
+          const fileContent = fs.readFileSync(file.path);
+          const awsRes = await S3.upload({
+            Bucket: process.env.AWS_S3_BUCKET as string,
+            Key: file.filename,
+            Body: fileContent,
+          }).promise();
+          console.log(awsRes);
+          category.image = `${file.filename}`;
+          fs.unlinkSync(file.path);
         }
       }
     }
@@ -64,14 +79,22 @@ export const editCategoryController = expressAsyncHandler(
       for (const file of req.files as Express.Multer.File[]) {
         for (const category of objectSubCategories) {
           if (file.fieldname === category.name) {
-            category.image = `images/${file.filename}`;
+            const fileContent = fs.readFileSync(file.path);
+            const awsRes = await S3.upload({
+              Bucket: process.env.AWS_S3_BUCKET as string,
+              Key: file.filename,
+              Body: fileContent,
+            }).promise();
+            console.log(awsRes);
+            category.image = `${file.filename}`;
+            fs.unlinkSync(file.path);
           }
         }
       }
 
       //work on removing the previous
-      foundCategory.sub_categories.filter((sub) =>
-       !subCategories.includes(sub.name)
+      foundCategory.sub_categories.filter(
+        (sub) => !subCategories.includes(sub.name)
       );
 
       for (const sub of objectSubCategories) {
@@ -81,16 +104,13 @@ export const editCategoryController = expressAsyncHandler(
       await foundCategory.save();
     }
 
-
     if (name) foundCategory.name = name;
     if (cost) foundCategory.cost = Number(cost);
     if (plan) foundCategory.plan = plan;
     await foundCategory.save();
-    return res
-      .status(200)
-      .json({
-        message: `Category of ${foundCategory._id} updated sucessfully`,
-      });
+    return res.status(200).json({
+      message: `Category of ${foundCategory._id} updated sucessfully`,
+    });
   }
 );
 
