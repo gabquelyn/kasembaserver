@@ -39,7 +39,7 @@ export const createCategoryController = expressAsyncHandler(
             Body: fileContent,
           }).promise();
           console.log(awsRes);
-          category.image = `images/${file.filename}`;
+          category.image = `${file.filename}`;
           fs.unlinkSync(file.path);
         }
       }
@@ -93,7 +93,7 @@ export const editCategoryController = expressAsyncHandler(
               Body: fileContent,
             }).promise();
             console.log(awsRes);
-            category.image = `images/${file.filename}`;
+            category.image = `${file.filename}`;
             fs.unlinkSync(file.path);
           }
         }

@@ -65,7 +65,7 @@ export const editProfileController = expressAsyncHandler(
       console.log(awsRes);
 
       // save the file key
-      foundUser.avatar = `images/${req.file.filename}`;
+      foundUser.avatar = `${req.file.filename}`;
       // delete previous file
       fs.unlinkSync(req.file.path);
     }
