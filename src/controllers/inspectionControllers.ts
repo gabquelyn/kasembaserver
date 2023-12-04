@@ -4,6 +4,8 @@ import Inspection from "../models/insepction";
 import Car from "../models/car";
 import User from "../models/user";
 import axios from "axios";
+import aws from "aws-sdk";
+import fs from "fs";
 interface CustomRequest extends Request {
   roles?: string;
   email?: string;
@@ -60,7 +62,12 @@ export const createInspectionController = expressAsyncHandler(
     if (!city || !address || !zip_code || !time) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
-
+    aws.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+    });
+    const S3 = new aws.S3();
     const selectedCategories: string[] = JSON.parse(category);
     // check for the user existence first
     const userId = (req as CustomRequest).userId;
@@ -86,9 +93,19 @@ export const createInspectionController = expressAsyncHandler(
       const imageArray: string[] = [];
       if (req.files) {
         for (let i = 0; i < +req.files?.length; i++) {
-          imageArray.push(
-            `images/${(req.files as Express.Multer.File[])[i].filename}`
+          const fileContent = fs.readFileSync(
+            (req.files as Express.Multer.File[])[i].path
           );
+          const awsRes = await S3.upload({
+            Bucket: process.env.AWS_S3_BUCKET as string,
+            Key: `images/${(req.files as Express.Multer.File[])[i].filename}`,
+            Body: fileContent,
+          }).promise();
+          console.log(awsRes);
+          imageArray.push(
+            `${(req.files as Express.Multer.File[])[i].filename}`
+          );
+          fs.unlinkSync((req.files as Express.Multer.File[])[i].path);
         }
       }
       const newCar = await Car.create({
