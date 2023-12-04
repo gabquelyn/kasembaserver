@@ -3,12 +3,6 @@ import User from "../models/user";
 import { Request, Response } from "express";
 import aws from "aws-sdk";
 import fs from "fs";
-aws.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-});
-const S3 = new aws.S3();
 interface CustomRequest extends Request {
   email?: string;
   roles?: string;
@@ -48,6 +42,12 @@ export const getProfileController = expressAsyncHandler(
 export const editProfileController = expressAsyncHandler(
   async (req: Request, res: Response): Promise<any> => {
     // set up aws to handle file upload
+    aws.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+    });
+    const S3 = new aws.S3();
     const foundUser = await User.findOne({
       email: (req as CustomRequest).email,
     }).exec();
@@ -59,13 +59,13 @@ export const editProfileController = expressAsyncHandler(
       const fileContent = fs.readFileSync(req.file.path);
       const awsRes = await S3.upload({
         Bucket: process.env.AWS_S3_BUCKET as string,
-        Key: req.file.filename,
+        Key: `images/${req.file.filename}`,
         Body: fileContent,
       }).promise();
       console.log(awsRes);
 
       // save the file key
-      foundUser.avatar = `${req.file.filename}`;
+      foundUser.avatar = `images/${req.file.filename}`;
       // delete previous file
       fs.unlinkSync(req.file.path);
     }
