@@ -28,5 +28,11 @@ jobs:
     - run: npm run build
     - run: 
         rm -rf src
+
+    - name: Debug Information
+      run: |
+        echo "Current Directory: $(pwd)"
+        ls -al
+
     # - run: |
     #     echo "${{secrets.PROD_ENV_FILE}}" > ./dist/.env
