@@ -25,5 +25,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm run build --if-present
-    
+    - run: npm run build
+    # - run: 
+    #     rm -rf src
+    # - run: |
+    #     echo "${{secrets.PROD_ENV_FILE}}" > ./dist/.env
